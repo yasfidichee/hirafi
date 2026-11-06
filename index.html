@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>حريفي - أفضل الحرفيين بين يديك</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -12,17 +13,34 @@
   <!-- ========== شاشة الترحيب ========== -->
   <section id="splashScreen" class="screen active">
     <div class="splash-content">
-      <div class="logo-box">
-        <h1 class="logo-text">حريفي</h1>
-      </div>
+      <div class="logo-box"><h1 class="logo-text">حريفي</h1></div>
       <p class="splash-sub">أفضل الحرفيين بين يديك</p>
+    </div>
+  </section>
+
+  <!-- ========== شاشة تسجيل الدخول ========== -->
+  <section id="loginScreen" class="screen">
+    <div class="container login-container">
+      <div class="login-logo">حريفي</div>
+      <p class="login-sub">سجل دخول باش تبدأ</p>
+      <button class="google-btn" onclick="signInWithGoogle()">
+        <svg width="20" height="20" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        <span>سجل دخول بـ Google</span>
+      </button>
+      <div class="divider"><span>أو</span></div>
+      <button class="guest-btn" onclick="continueAsGuest()">متابعة كزائر</button>
     </div>
   </section>
 
   <!-- ========== اختيار الدور ========== -->
   <section id="roleScreen" class="screen">
     <div class="container">
-      <h2 class="title">مرحبا بيك ف حريفي</h2>
+      <h2 class="title">مرحبا بيك <span id="welcomeName"></span></h2>
       <p class="subtitle">واش نتا حريفي ولا كتقلب على شي حريفي؟</p>
       <div class="choice-list">
         <div class="choice-card orange" onclick="goToConsumer()">
@@ -85,6 +103,9 @@
         <textarea id="craftBio" rows="4" placeholder="عرف راسك بالحرفة ديالك..." required></textarea>
         <label>رقم الهاتف</label>
         <input type="tel" id="craftPhone" placeholder="06XXXXXXXX" required>
+        <label>📍 الموقع الجغرافي (اختياري)</label>
+        <button type="button" class="btn outline-btn" onclick="getMyLocation()">📍 خد موقعي الحالي</button>
+        <p id="locationStatus" class="hint"></p>
         <button type="submit" class="btn teal-btn">إنشاء الحساب</button>
       </form>
     </div>
@@ -94,7 +115,10 @@
   <section id="listScreen" class="screen">
     <div class="top-bar">
       <h2>الحرفيين</h2>
-      <button class="back-btn light" onclick="logout()">خروج</button>
+      <div class="top-actions">
+        <button class="icon-btn" onclick="openChatList()" title="الرسائل">💬</button>
+        <button class="back-btn light" onclick="logout()">خروج</button>
+      </div>
     </div>
     <div class="filters">
       <input type="text" id="searchInput" placeholder="🔍 قلب على مدينة، اسم، مهنة..." oninput="renderCraftsmen()">
@@ -116,15 +140,69 @@
     <div id="detailContent" class="container"></div>
   </section>
 
-  <!-- ========== بروفايل الحريفي بعد التسجيل ========== -->
+  <!-- ========== بروفايل الحريفي (ديالي) ========== -->
   <section id="myProfileScreen" class="screen">
     <div class="top-bar teal-bar">
       <h2>البروفايل ديالي</h2>
-      <button class="back-btn light" onclick="logout()">خروج</button>
+      <div class="top-actions">
+        <button class="icon-btn" onclick="openChatList()" title="الرسائل">💬</button>
+        <button class="back-btn light" onclick="logout()">خروج</button>
+      </div>
     </div>
     <div id="myProfileContent" class="container"></div>
   </section>
 
+  <!-- ========== شاشة الدردشة ========== -->
+  <section id="chatScreen" class="screen">
+    <div class="top-bar teal-bar">
+      <button class="back-btn light" onclick="backFromChat()">→ رجوع</button>
+      <h2 id="chatTitle">محادثة</h2>
+      <div style="width:50px"></div>
+    </div>
+    <div id="chatMessages" class="chat-messages"></div>
+    <div class="chat-input-bar">
+      <input type="text" id="chatInput" placeholder="كتب رسالة..." onkeypress="if(event.key==='Enter')sendMessage()">
+      <button class="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </section>
+
+  <!-- ========== قائمة المحادثات ========== -->
+  <section id="chatListScreen" class="screen">
+    <div class="top-bar">
+      <button class="back-btn light" onclick="backFromChatList()">→ رجوع</button>
+      <h2>الرسائل</h2>
+      <div style="width:50px"></div>
+    </div>
+    <div id="chatList" class="chat-list"></div>
+  </section>
+
+  <!-- ========== حجز موعد ========== -->
+  <section id="bookingScreen" class="screen">
+    <div class="top-bar teal-bar">
+      <button class="back-btn light" onclick="showScreen('detailScreen')">→ رجوع</button>
+      <h2>حجز موعد</h2>
+    </div>
+    <div class="container">
+      <h3 class="title">اختار التاريخ و الوقت</h3>
+      <label>التاريخ</label>
+      <input type="date" id="bookingDate" min="">
+      <label>الوقت</label>
+      <input type="time" id="bookingTime">
+      <label>ملاحظات (اختياري)</label>
+      <textarea id="bookingNotes" rows="3" placeholder="وصف المشكل..."></textarea>
+      <button class="btn teal-btn" onclick="submitBooking()">📅 أكد الحجز</button>
+    </div>
+  </section>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script src="firebase-config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
