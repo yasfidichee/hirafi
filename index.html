@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>حريفي - أفضل الحرفيين بين يديك</title>
+  
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -22,7 +24,9 @@
   <section id="loginScreen" class="screen">
     <div class="container login-container">
       <div class="login-logo">حريفي</div>
-      <p class="login-sub">سجل دخول باش تبدأ</p>
+      <p class="login-sub">مرحبا بيك، دخل باش تبدأ</p>
+      
+      <!-- زر جوجل (مؤقتاً كيعطي تنبيه) -->
       <button class="google-btn" onclick="signInWithGoogle()">
         <svg width="20" height="20" viewBox="0 0 48 48">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -32,7 +36,9 @@
         </svg>
         <span>سجل دخول بـ Google</span>
       </button>
+      
       <div class="divider"><span>أو</span></div>
+      
       <button class="guest-btn" onclick="continueAsGuest()">متابعة كزائر</button>
     </div>
   </section>
@@ -103,9 +109,11 @@
         <textarea id="craftBio" rows="4" placeholder="عرف راسك بالحرفة ديالك..." required></textarea>
         <label>رقم الهاتف</label>
         <input type="tel" id="craftPhone" placeholder="06XXXXXXXX" required>
+        
         <label>📍 الموقع الجغرافي (اختياري)</label>
         <button type="button" class="btn outline-btn" onclick="getMyLocation()">📍 خد موقعي الحالي</button>
         <p id="locationStatus" class="hint"></p>
+        
         <button type="submit" class="btn teal-btn">إنشاء الحساب</button>
       </form>
     </div>
@@ -116,7 +124,6 @@
     <div class="top-bar">
       <h2>الحرفيين</h2>
       <div class="top-actions">
-        <button class="icon-btn" onclick="openChatList()" title="الرسائل">💬</button>
         <button class="back-btn light" onclick="logout()">خروج</button>
       </div>
     </div>
@@ -136,6 +143,7 @@
     <div class="top-bar teal-bar">
       <button class="back-btn light" onclick="showScreen('listScreen')">→ رجوع</button>
       <h2>بروفايل الحريفي</h2>
+      <div style="width:50px"></div>
     </div>
     <div id="detailContent" class="container"></div>
   </section>
@@ -145,63 +153,22 @@
     <div class="top-bar teal-bar">
       <h2>البروفايل ديالي</h2>
       <div class="top-actions">
-        <button class="icon-btn" onclick="openChatList()" title="الرسائل">💬</button>
         <button class="back-btn light" onclick="logout()">خروج</button>
       </div>
     </div>
     <div id="myProfileContent" class="container"></div>
   </section>
 
-  <!-- ========== شاشة الدردشة ========== -->
-  <section id="chatScreen" class="screen">
-    <div class="top-bar teal-bar">
-      <button class="back-btn light" onclick="backFromChat()">→ رجوع</button>
-      <h2 id="chatTitle">محادثة</h2>
-      <div style="width:50px"></div>
-    </div>
-    <div id="chatMessages" class="chat-messages"></div>
-    <div class="chat-input-bar">
-      <input type="text" id="chatInput" placeholder="كتب رسالة..." onkeypress="if(event.key==='Enter')sendMessage()">
-      <button class="send-btn" onclick="sendMessage()">➤</button>
-    </div>
-  </section>
-
-  <!-- ========== قائمة المحادثات ========== -->
-  <section id="chatListScreen" class="screen">
-    <div class="top-bar">
-      <button class="back-btn light" onclick="backFromChatList()">→ رجوع</button>
-      <h2>الرسائل</h2>
-      <div style="width:50px"></div>
-    </div>
-    <div id="chatList" class="chat-list"></div>
-  </section>
-
-  <!-- ========== حجز موعد ========== -->
-  <section id="bookingScreen" class="screen">
-    <div class="top-bar teal-bar">
-      <button class="back-btn light" onclick="showScreen('detailScreen')">→ رجوع</button>
-      <h2>حجز موعد</h2>
-    </div>
-    <div class="container">
-      <h3 class="title">اختار التاريخ و الوقت</h3>
-      <label>التاريخ</label>
-      <input type="date" id="bookingDate" min="">
-      <label>الوقت</label>
-      <input type="time" id="bookingTime">
-      <label>ملاحظات (اختياري)</label>
-      <textarea id="bookingNotes" rows="3" placeholder="وصف المشكل..."></textarea>
-      <button class="btn teal-btn" onclick="submitBooking()">📅 أكد الحجز</button>
-    </div>
-  </section>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+  <!-- ========== SDKs ========== -->
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Leaflet للخرائط (اختياري إلا بغيتيها من بعد) -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <script src="firebase-config.js"></script>
+  <!-- ملفات المشروع -->
+  <script src="supabase-config.js"></script>
   <script src="app.js"></script>
+
 </body>
 </html>
