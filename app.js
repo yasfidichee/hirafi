@@ -203,15 +203,39 @@ function previewPhoto(e) {
   reader.readAsDataURL(file);
 }
 
+// ✅ الدالة الجديدة لرفع الصور عبر Cloudinary
 async function uploadPhoto(dataUrl, id) {
   if (!dataUrl || !dataUrl.startsWith('data:')) return '';
+  
+  // المعلومات ديالك من Cloudinary
+  const CLOUD_NAME = 'f8fgy9rs';
+  const UPLOAD_PRESET = 'hirafi_uploads'; // سميتها اللي صاوبتي
+  
   try {
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
-    const ref = storage.ref(`craftsmen/${id}.jpg`);
-    await ref.put(blob);
-    return await ref.getDownloadURL();
-  } catch (e) { console.error(e); return ''; }
+    // تجهيز الصورة باش تتصيفط
+    const formData = new FormData();
+    formData.append('file', dataUrl);
+    formData.append('upload_preset', UPLOAD_PRESET);
+
+    // صيفط الصورة لـ Cloudinary
+    const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (data.secure_url) {
+      // رجعنا الرابط ديال الصورة
+      return data.secure_url;
+    } else {
+      console.error('مشكل ف الرفع:', data);
+      return '';
+    }
+  } catch (error) {
+    console.error('❌ خطأ ف الاتصال مع Cloudinary:', error);
+    return '';
+  }
 }
 
 // ==================== تسجيل حريفي ====================
