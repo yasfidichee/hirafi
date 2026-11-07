@@ -444,6 +444,10 @@ function backFromChat() {
     chatSubscription = null;
   }
   
+  // هنا بدلنا باش يرجع لصندوق الرسائل ديريكت
+  openInbox(); 
+}
+  
   if (currentProfile.role === 'craftsman') { 
     renderMyProfile(); 
     showScreen('myProfileScreen'); 
