@@ -1,166 +1,178 @@
 // ==================== البيانات الافتراضية ====================
 const defaultCraftsmen = [
   { name: 'محمد العلمي', profession: 'كهربائي', city: 'الدار البيضاء', bio: 'كهربائي محترف خبرة 10 سنين', phone: '0612345678', rating: 4.5, rating_count: 20, ratings: [5,4,5,4,5,4,5,4,5,4], photo: '' },
-  { name: 'يوسف بناني', profession: 'صباغ', city: 'الرباط', bio: 'صباغ ماهر وأسعار مناسبة', phone: '0623456789', rating: 4.0, rating_count: 15, ratings: [4,4,4,5,3,4], photo: '' },
-  { name: 'عبد الله الإدريسي', profession: 'نجار', city: 'مراكش', bio: 'نجار تقليدي وأثاث عصري', phone: '0634567890', rating: 5.0, rating_count: 8, ratings: [5,5,5,5], photo: '' }
+  { name: 'يوسف بناني', profession: 'صباغ', city: 'الرباط', bio: 'صباغ ماهر وأسعار مناسبة', phone: '0623456789', rating: 4.0, rating_count: 15, ratings: [4,4,4,5,3,4], photo: '' }
 ];
 
 // ==================== المتغيرات ====================
-const USER_KEY = 'harifi_current_user';
 let craftsmen = [];
-let currentUser = null;
+let currentAuthUser = null; // المستخدم ديال Supabase
+let currentProfile = null;  // البروفايل ديالو من قاعدة البيانات
 let currentDetailId = null;
 let selectedCity = 'الكل';
 let minRating = 0;
 let currentRatingSelection = 0;
 let uploadedPhoto = '';
-let myLocation = null;
-let chatSubscription = null;
-let currentChatPartner = null;
 
-// ==================== التهيئة ====================
+// ==================== 1. التهيئة ومراقبة الدخول ====================
 async function init() {
-  const userStr = localStorage.getItem(USER_KEY);
-  if (userStr) currentUser = JSON.parse(userStr);
+  // مراقبة حالة تسجيل الدخول
+  _supabase.auth.onAuthStateChange(async (event, session) => {
+    if (session) {
+      currentAuthUser = session.user;
+      
+      // جيب البروفايل من جدول profiles
+      const { data, error } = await _supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentAuthUser.id)
+        .single();
+
+      if (data) {
+        currentProfile = data; // لقينا الحساب
+        routeUser();
+      } else {
+        // مازال ما كملش البروفايل ديالو (جديد)
+        document.getElementById('welcomeName').textContent = currentAuthUser.email;
+        showScreen('roleScreen');
+      }
+    } else {
+      currentAuthUser = null;
+      currentProfile = null;
+      showScreen('authScreen');
+    }
+  });
 
   await seedIfEmpty();
   await loadCraftsmen();
-
-  setTimeout(() => {
-    if (currentUser && currentUser.type) {
-      routeUser();
-    } else {
-      showScreen('loginScreen');
-    }
-  }, 1500);
 }
 
-function routeUser() {
-  if (currentUser.type === 'consumer') {
-    showScreen('listScreen');
-    renderCityChips();
-    renderCraftsmen();
+// ==================== 2. Auth (تسجيل الدخول) ====================
+function toggleAuthForm(e) {
+  e.preventDefault();
+  const loginF = document.getElementById('loginForm');
+  const regF = document.getElementById('registerForm');
+  const toggleTxt = document.getElementById('toggleAuthText');
+  const toggleBtn = document.getElementById('toggleAuthBtn');
+
+  if (loginF.style.display === 'none') {
+    loginF.style.display = 'block';
+    regF.style.display = 'none';
+    toggleTxt.textContent = 'ما عندكش حساب؟ ';
+    toggleBtn.textContent = 'صاوب حساب جديد';
   } else {
-    renderMyProfile();
-    showScreen('myProfileScreen');
+    loginF.style.display = 'none';
+    regF.style.display = 'block';
+    toggleTxt.textContent = 'عندك حساب من قبل؟ ';
+    toggleBtn.textContent = 'دخل لحسابك';
   }
 }
 
-// ==================== جلب البيانات ====================
-async function seedIfEmpty() {
-  try {
-    const { data, error } = await _supabase.from('craftsmen').select('id').limit(1);
-    if (data && data.length > 0) return; // فيهم داتا
+async function registerUser(e) {
+  e.preventDefault();
+  const name = document.getElementById('regName').value;
+  const email = document.getElementById('regEmail').value;
+  const password = document.getElementById('regPassword').value;
 
-    console.log('📦 كنزيدو الحرفيين الافتراضيين...');
-    await _supabase.from('craftsmen').insert(defaultCraftsmen);
-  } catch (e) { console.error(e); }
+  document.getElementById('regBtn').disabled = true;
+  document.getElementById('regBtn').textContent = 'جاري التسجيل...';
+
+  const { data, error } = await _supabase.auth.signUp({ email, password });
+
+  if (error) {
+    showAuthError(error.message);
+  } else {
+    // بعد ما تسجل، كنزيدو ليه بروفايل (نوعو مازال مامعروفش)
+    if (data.user) {
+      await _supabase.from('profiles').insert({
+        id: data.user.id,
+        name: name,
+        role: 'unknown' // مازال ماختارش
+      });
+      showToast('✅ تسجلت بنجاح!');
+    }
+  }
+  
+  document.getElementById('regBtn').disabled = false;
+  document.getElementById('regBtn').textContent = 'إنشاء حساب';
 }
 
-async function loadCraftsmen() {
-  try {
-    const { data, error } = await _supabase.from('craftsmen').select('*');
-    if (error) throw error;
-    craftsmen = data || [];
-  } catch (e) { console.error('❌ خطأ ف التحميل:', e); }
+async function loginUser(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+
+  document.getElementById('loginBtn').disabled = true;
+  document.getElementById('loginBtn').textContent = 'جاري الدخول...';
+
+  const { error } = await _supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    showAuthError(error.message);
+  }
+  
+  document.getElementById('loginBtn').disabled = false;
+  document.getElementById('loginBtn').textContent = 'تسجيل الدخول';
 }
 
-// ==================== تسجيل الدخول ====================
-async function signInWithGoogle() {
-  // فـ Supabase، تسجيل الدخول بـ Google كيحتاج إعدادات إضافية فـ Dashboard
-  // باش نسهلوها، غادي نخليو "متابعة كزائر" للنسخة الأولى
-  showToast('⚠️ استعمل زر "متابعة كزائر" دابا');
+function showAuthError(msg) {
+  const errDiv = document.getElementById('authError');
+  errDiv.textContent = msg;
+  errDiv.style.display = 'block';
+  setTimeout(() => errDiv.style.display = 'none', 4000);
 }
 
-function continueAsGuest() {
-  currentUser = { type: null, name: 'زائر', uid: 'guest_' + Date.now() };
-  document.getElementById('welcomeName').textContent = '';
-  showScreen('roleScreen');
+async function logout() {
+  await _supabase.auth.signOut();
+  showToast('خارج من الحساب');
 }
 
-function logout() {
-  localStorage.removeItem(USER_KEY);
-  currentUser = null;
-  showScreen('loginScreen');
-}
-
-// ==================== التنقل ====================
+// ==================== 3. التنقل ====================
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
 }
+
+function routeUser() {
+  if (!currentProfile) return;
+  
+  if (currentProfile.role === 'consumer') {
+    showScreen('listScreen');
+    renderCityChips();
+    renderCraftsmen();
+  } else if (currentProfile.role === 'craftsman') {
+    renderMyProfile();
+    showScreen('myProfileScreen');
+  } else {
+    showScreen('roleScreen');
+  }
+}
+
 function goToConsumer() { showScreen('consumerScreen'); }
 function goToCraftsman() { showScreen('craftsmanScreen'); }
 
-// ==================== تسجيل مستهلك ====================
-function submitConsumer(e) {
+// ==================== 4. تسجيل الأدوار ====================
+async function submitConsumer(e) {
   e.preventDefault();
-  const name = document.getElementById('consumerName').value.trim();
+  const name = document.getElementById('consumerName').value;
   const age = parseInt(document.getElementById('consumerAge').value);
+
   if (!name || !age || age < 16) { showToast('⚠️ دخل معلومات صحيحة'); return; }
 
-  currentUser = { ...currentUser, type: 'consumer', name, age };
-  localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+  // تحديث البروفايل فـ Supabase
+  await _supabase.from('profiles').update({
+    name: name,
+    role: 'consumer',
+    age: age
+  }).eq('id', currentAuthUser.id);
+
+  currentProfile = { ...currentProfile, name, role: 'consumer', age };
   renderCityChips();
   renderCraftsmen();
   showScreen('listScreen');
 }
 
-// ==================== الموقع ====================
-function getMyLocation() {
-  const status = document.getElementById('locationStatus');
-  status.textContent = '⏳ كنحددو الموقع...';
-  if (!navigator.geolocation) { status.textContent = '❌ المتصفح ما كيدعمش الموقع'; return; }
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      myLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      status.textContent = `✅ تحدد الموقع (${myLocation.lat.toFixed(3)}, ${myLocation.lng.toFixed(3)})`;
-    },
-    err => { status.textContent = '❌ ما قدرناش نجيبو الموقع'; },
-    { enableHighAccuracy: true, timeout: 10000 }
-  );
-}
-
-// ==================== الصور ====================
-function previewPhoto(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (file.size > 2 * 1024 * 1024) { showToast('⚠️ الصورة كبيرة (ماكس 2MB)'); return; }
-  const reader = new FileReader();
-  reader.onload = ev => {
-    uploadedPhoto = ev.target.result;
-    const img = document.getElementById('avatarPreview');
-    img.src = uploadedPhoto;
-    img.style.display = 'block';
-    document.getElementById('avatarPlaceholder').style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-}
-
-async function uploadPhoto(file, id) {
-  if (!file) return '';
-  try {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${id}-${Date.now()}.${fileExt}`;
-    
-    // رفع الصورة لـ Supabase Storage
-    const { data, error } = await _supabase.storage
-      .from('craftsmen')
-      .upload(fileName, file);
-
-    if (error) throw error;
-    
-    // جلب الرابط العام
-    const { data: urlData } = _supabase.storage.from('craftsmen').getPublicUrl(fileName);
-    return urlData.publicUrl;
-  } catch (e) { 
-    console.error('❌ خطأ ف رفع الصورة:', e); 
-    return ''; 
-  }
-}
-
-// ==================== تسجيل حريفي ====================
 async function submitCraftsman(e) {
   e.preventDefault();
   const name = document.getElementById('craftName').value.trim();
@@ -179,44 +191,49 @@ async function submitCraftsman(e) {
   showToast('⏳ كنحفظو...');
 
   try {
-    // 1. زيد الحريفي
+    // 1. زيد الحريفي فـ craftsmen
     const { data, error } = await _supabase.from('craftsmen').insert({
       name, profession, city, bio, phone,
-      photo: '', rating: 0, rating_count: 0, ratings: []
+      photo: '', rating: 0, rating_count: 0, ratings: [],
+      user_id: currentAuthUser.id // ربط الحريفي بالحساب
     }).select().single();
 
     if (error) throw error;
     const newId = data.id;
 
-    // 2. رفع الصورة إذا كانت
+    // 2. رفع الصورة
     let photoUrl = '';
     if (photoInput.files.length > 0) {
-      showToast('⏳ كنرفعو الصورة...');
       photoUrl = await uploadPhoto(photoInput.files[0], newId);
       if (photoUrl) {
         await _supabase.from('craftsmen').update({ photo: photoUrl }).eq('id', newId);
       }
     }
 
-    // 3. حفظ المستخدم
-    currentUser = { type: 'craftsman', id: newId, name, profession, city, bio, phone, photo: photoUrl };
-    localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+    // 3. تحديث البروفايل
+    await _supabase.from('profiles').update({
+      name: name,
+      role: 'craftsman',
+      craftsman_id: newId
+    }).eq('id', currentAuthUser.id);
 
+    currentProfile = { ...currentProfile, name, role: 'craftsman', craftsman_id: newId };
+    
     await loadCraftsmen();
     renderMyProfile();
     showScreen('myProfileScreen');
     showToast('✅ تسجلت بنجاح!');
   } catch (err) {
     console.error(err);
-    showToast('❌ مشكل، عاود جرب');
+    showToast('❌ مشكل: ' + err.message);
   } finally {
     btn.disabled = false;
   }
 }
 
-// ==================== عرض البروفايل ====================
+// ==================== 5. عرض البروفايل ====================
 function renderMyProfile() {
-  const c = craftsmen.find(x => x.id === currentUser.id);
+  const c = craftsmen.find(x => x.id === currentProfile.craftsman_id);
   if (!c) return;
   const avatarStyle = c.photo ? `style="background-image:url('${c.photo}')"` : '';
   const avatarContent = c.photo ? '' : c.name.charAt(0);
@@ -236,13 +253,26 @@ function renderMyProfile() {
   `;
 }
 
-// ==================== القائمة ====================
+// ==================== 6. القائمة والتقييمات ====================
+async function seedIfEmpty() {
+  const { data } = await _supabase.from('craftsmen').select('id').limit(1);
+  if (data && data.length === 0) {
+    await _supabase.from('craftsmen').insert(defaultCraftsmen);
+  }
+}
+
+async function loadCraftsmen() {
+  const { data } = await _supabase.from('craftsmen').select('*');
+  craftsmen = data || [];
+}
+
 function renderCityChips() {
   const cities = ['الكل', ...new Set(craftsmen.map(c => c.city))];
   document.getElementById('cityChips').innerHTML = cities.map(city =>
     `<button class="chip ${city === selectedCity ? 'active' : ''}" onclick="selectCity('${city}')">${city}</button>`
   ).join('');
 }
+
 function selectCity(city) { selectedCity = city; renderCityChips(); renderCraftsmen(); }
 function updateRatingFilter(val) {
   minRating = parseFloat(val);
@@ -279,7 +309,6 @@ function renderCraftsmen() {
   }).join('');
 }
 
-// ==================== التفاصيل والتقييم ====================
 function openDetail(id) {
   currentDetailId = id;
   currentRatingSelection = 0;
@@ -292,7 +321,9 @@ function renderDetailContent() {
   if (!c) return;
   const avatarStyle = c.photo ? `style="background-image:url('${c.photo}')"` : '';
   const avatarContent = c.photo ? '' : c.name.charAt(0);
-  const isMine = currentUser && currentUser.type === 'craftsman' && currentUser.id === c.id;
+  
+  // واش هاد الحريفي هو اللي مسجل دابا؟
+  const isMine = currentProfile && currentProfile.craftsman_id === c.id;
 
   document.getElementById('detailContent').innerHTML = `
     <div class="profile-header">
@@ -344,12 +375,45 @@ async function submitRating() {
       rating: newRating
     }).eq('id', currentDetailId);
 
-    await loadCraftsmen(); // تحديث الداتا
+    await loadCraftsmen();
     renderDetailContent();
     showToast('✅ شكراً على التقييم!');
   } catch (e) { 
     console.error(e); 
     showToast('❌ مشكل ف التقييم'); 
+  }
+}
+
+// ==================== رفع الصور ====================
+function previewPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('⚠️ الصورة كبيرة (ماكس 2MB)'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    uploadedPhoto = ev.target.result;
+    const img = document.getElementById('avatarPreview');
+    img.src = uploadedPhoto;
+    img.style.display = 'block';
+    document.getElementById('avatarPlaceholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadPhoto(file, id) {
+  if (!file) return '';
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${id}-${Date.now()}.${fileExt}`;
+    
+    const { data, error } = await _supabase.storage.from('craftsmen').upload(fileName, file);
+    if (error) throw error;
+    
+    const { data: urlData } = _supabase.storage.from('craftsmen').getPublicUrl(fileName);
+    return urlData.publicUrl;
+  } catch (e) { 
+    console.error('❌ خطأ ف رفع الصورة:', e); 
+    return ''; 
   }
 }
 
