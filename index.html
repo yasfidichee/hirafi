@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>حريفي - أفضل الحرفيين بين يديك</title>
   
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -20,45 +18,42 @@
     </div>
   </section>
 
- <!-- ========== شاشة تسجيل الدخول / إنشاء حساب ========== -->
-<section id="authScreen" class="screen">
-  <div class="container login-container">
-    <div class="login-logo">حريفي</div>
-    <p class="login-sub">مرحبا بيك، دخل للموقع</p>
-    
-    <div id="authError" style="color: #e53935; margin-bottom: 10px; font-size: 14px; font-weight: bold; display: none;"></div>
+  <!-- ========== شاشة تسجيل الدخول / إنشاء حساب ========== -->
+  <section id="authScreen" class="screen">
+    <div class="container login-container">
+      <div class="login-logo">حريفي</div>
+      <p class="login-sub">مرحبا بيك، دخل للموقع</p>
+      
+      <div id="authError" style="color: #e53935; margin-bottom: 10px; font-size: 14px; font-weight: bold; display: none;"></div>
 
-    <form id="loginForm" onsubmit="loginUser(event)">
-      <label>البريد الإلكتروني</label>
-      <input type="email" id="loginEmail" placeholder="ex: test@test.com" required>
-      
-      <label>كلمة السر</label>
-      <input type="password" id="loginPassword" placeholder="********" required minlength="6">
-      
-      <button type="submit" class="btn teal-btn" id="loginBtn">تسجيل الدخول</button>
-    </form>
+      <!-- فورم الدخول -->
+      <form id="loginForm" onsubmit="loginUser(event)">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="loginEmail" placeholder="ex: test@test.com" required>
+        <label>كلمة السر</label>
+        <input type="password" id="loginPassword" placeholder="********" required minlength="6">
+        <button type="submit" class="btn teal-btn" id="loginBtn">تسجيل الدخول</button>
+      </form>
 
-    <div class="divider"><span>أو</span></div>
+      <div class="divider"><span>أو</span></div>
 
-    <form id="registerForm" onsubmit="registerUser(event)" style="display:none;">
-      <label>الاسم الكامل</label>
-      <input type="text" id="regName" placeholder="مثال: أحمد بن علي" required>
-      
-      <label>البريد الإلكتروني</label>
-      <input type="email" id="regEmail" placeholder="ex: test@test.com" required>
-      
-      <label>كلمة السر (6 حروف على الأقل)</label>
-      <input type="password" id="regPassword" placeholder="********" required minlength="6">
-      
-      <button type="submit" class="btn orange-btn" id="regBtn">إنشاء حساب</button>
-    </form>
+      <!-- فورم التسجيل -->
+      <form id="registerForm" onsubmit="registerUser(event)" style="display:none;">
+        <label>الاسم الكامل</label>
+        <input type="text" id="regName" placeholder="مثال: أحمد بن علي" required>
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="regEmail" placeholder="ex: test@test.com" required>
+        <label>كلمة السر (6 حروف على الأقل)</label>
+        <input type="password" id="regPassword" placeholder="********" required minlength="6">
+        <button type="submit" class="btn orange-btn" id="regBtn">إنشاء حساب</button>
+      </form>
 
-    <p style="text-align:center; margin-top: 20px; font-size: 14px;">
-      <span id="toggleAuthText">ما عندكش حساب؟ </span>
-      <a href="#" id="toggleAuthBtn" onclick="toggleAuthForm(event)" style="color: #00897b; font-weight: bold; text-decoration: none;">صاوب حساب جديد</a>
-    </p>
-  </div>
-</section>
+      <p style="text-align:center; margin-top: 20px; font-size: 14px;">
+        <span id="toggleAuthText">ما عندكش حساب؟ </span>
+        <a href="#" id="toggleAuthBtn" onclick="toggleAuthForm(event)" style="color: #00897b; font-weight: bold; text-decoration: none;">صاوب حساب جديد</a>
+      </p>
+    </div>
+  </section>
 
   <!-- ========== اختيار الدور ========== -->
   <section id="roleScreen" class="screen">
@@ -126,11 +121,6 @@
         <textarea id="craftBio" rows="4" placeholder="عرف راسك بالحرفة ديالك..." required></textarea>
         <label>رقم الهاتف</label>
         <input type="tel" id="craftPhone" placeholder="06XXXXXXXX" required>
-        
-        <label>📍 الموقع الجغرافي (اختياري)</label>
-        <button type="button" class="btn outline-btn" onclick="getMyLocation()">📍 خد موقعي الحالي</button>
-        <p id="locationStatus" class="hint"></p>
-        
         <button type="submit" class="btn teal-btn">إنشاء الحساب</button>
       </form>
     </div>
@@ -141,6 +131,7 @@
     <div class="top-bar">
       <h2>الحرفيين</h2>
       <div class="top-actions">
+        <button class="icon-btn" onclick="openInbox()" title="الرسائل">📥</button>
         <button class="back-btn light" onclick="logout()">خروج</button>
       </div>
     </div>
@@ -170,19 +161,40 @@
     <div class="top-bar teal-bar">
       <h2>البروفايل ديالي</h2>
       <div class="top-actions">
+        <button class="icon-btn" onclick="openInbox()" title="الرسائل">📥</button>
         <button class="back-btn light" onclick="logout()">خروج</button>
       </div>
     </div>
     <div id="myProfileContent" class="container"></div>
   </section>
 
-  <!-- ========== SDKs ========== -->
-  <!-- Supabase SDK -->
+  <!-- ========== شاشة قائمة الرسائل ========== -->
+  <section id="inboxScreen" class="screen">
+    <div class="top-bar">
+      <button class="back-btn light" onclick="backFromInbox()">→ رجوع</button>
+      <h2>صندوق الرسائل</h2>
+      <div style="width:50px"></div>
+    </div>
+    <div id="inboxList" class="container" style="padding-top: 10px;"></div>
+  </section>
+
+  <!-- ========== شاشة الشات ========== -->
+  <section id="chatScreen" class="screen">
+    <div class="top-bar teal-bar">
+      <button class="back-btn light" onclick="backFromChat()">→ رجوع</button>
+      <h2 id="chatTitle">المحادثة</h2>
+      <div style="width:50px"></div>
+    </div>
+    <div id="chatMessages" class="chat-messages"></div>
+    <div class="chat-input-bar">
+      <input type="text" id="chatInput" placeholder="كتب رسالة..." onkeypress="if(event.key==='Enter')sendMessage()">
+      <button class="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </section>
+
+  <!-- SDKs -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
-  <!-- Leaflet للخرائط (اختياري إلا بغيتيها من بعد) -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
   <!-- ملفات المشروع -->
   <script src="supabase-config.js"></script>
   <script src="app.js"></script>
