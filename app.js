@@ -458,9 +458,18 @@ async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
   
-  input.value = ''; // نمسحو الخانة ديريكت
+  // 1. نمسحو الخانة ديريكت
+  input.value = ''; 
   
-  // كنصيفطو للسيرفر، والسيرفر هو اللي غادي يرجعها لينا ونعرضوها
+  // 2. كنصاوبو رسالة مؤقتة باش تبان ديريكت فالشاشة (Optimistic UI)
+  const tempMessage = {
+    text: text,
+    sender_uid: currentAuthUser.id,
+    created_at: new Date().toISOString()
+  };
+  appendMessage(tempMessage); 
+  
+  // 3. كنصيفطوها للسيرفر فـ الخلفية
   const { error } = await _supabase.from('messages').insert({
     room_id: chatRoomId,
     sender_uid: currentAuthUser.id,
@@ -468,7 +477,11 @@ async function sendMessage() {
     text: text
   });
   
-  if (error) showToast('❌ ما صيفطناش الرسالة');
+  // 4. إلا كان مشكل فالسيرفر، كنطلعو تنبيه
+  if (error) {
+    console.error(error);
+    showToast('❌ ما صيفطناش الرسالة: ' + error.message);
+  }
 }
 
 function backFromChat() {
