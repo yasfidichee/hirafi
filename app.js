@@ -228,4 +228,288 @@ function renderMyProfile() {
 
 // ==================== 6. القائمة والتقييمات ====================
 async function seedIfEmpty() {
-  const { data } = await _supabase.from('craftsmen').select('id').limit
+  const { data } = await _supabase.from('craftsmen').select('id').limit(1);
+  if (data && data.length === 0) await _supabase.from('craftsmen').insert(defaultCraftsmen);
+}
+
+async function loadCraftsmen() {
+  const { data } = await _supabase.from('craftsmen').select('*');
+  craftsmen = data || [];
+}
+
+function renderCityChips() {
+  const cities = ['الكل', ...new Set(craftsmen.map(c => c.city))];
+  document.getElementById('cityChips').innerHTML = cities.map(city =>
+    `<button class="chip ${city === selectedCity ? 'active' : ''}" onclick="selectCity('${city}')">${city}</button>`
+  ).join('');
+}
+
+function selectCity(city) { selectedCity = city; renderCityChips(); renderCraftsmen(); }
+function updateRatingFilter(val) {
+  minRating = parseFloat(val);
+  document.getElementById('ratingValue').textContent = minRating.toFixed(1);
+  renderCraftsmen();
+}
+
+function renderCraftsmen() {
+  const search = document.getElementById('searchInput').value.trim();
+  let filtered = craftsmen.filter(c => {
+    const mCity = selectedCity === 'الكل' || c.city === selectedCity;
+    const mRat = (c.rating || 0) >= minRating;
+    const mSearch = !search || c.name.includes(search) || c.city.includes(search) || c.profession.includes(search);
+    return mCity && mRat && mSearch;
+  });
+  filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
+  const listEl = document.getElementById('craftsmenList');
+  if (filtered.length === 0) { listEl.innerHTML = '<div class="empty">🔍 ما لقيناش شي حريفي</div>'; return; }
+
+  listEl.innerHTML = filtered.map(c => {
+    const avatarStyle = c.photo ? `style="background-image:url('${c.photo}')"` : '';
+    const avatarContent = c.photo ? '' : c.name.charAt(0);
+    return `
+      <div class="craftsman-card" onclick="openDetail('${c.id}')">
+        <div class="avatar-letter" ${avatarStyle}>${avatarContent}</div>
+        <div class="craftsman-info">
+          <h3>${c.name}</h3>
+          <p>${c.profession} • ${c.city}</p>
+          <div class="rating-line">⭐ ${(c.rating || 0).toFixed(1)} <span style="color:#999">(${c.rating_count || 0})</span></div>
+        </div>
+        <span style="color:#999;font-size:20px">‹</span>
+      </div>`;
+  }).join('');
+}
+
+function openDetail(id) {
+  currentDetailId = id;
+  currentRatingSelection = 0;
+  renderDetailContent();
+  showScreen('detailScreen');
+}
+
+function renderDetailContent() {
+  const c = craftsmen.find(x => x.id === currentDetailId);
+  if (!c) return;
+  const avatarStyle = c.photo ? `style="background-image:url('${c.photo}')"` : '';
+  const avatarContent = c.photo ? '' : c.name.charAt(0);
+  const isMine = currentProfile && currentProfile.craftsman_id === c.id;
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="profile-header">
+      <div class="avatar-letter" ${avatarStyle}>${avatarContent}</div>
+      <h2>${c.name}</h2>
+      <span class="chip-prof">${c.profession}</span>
+      <div class="location">📍 ${c.city}</div>
+    </div>
+    <div class="card"><h3>نبذة</h3><p>${c.bio}</p></div>
+    
+    <div class="btn-row">
+      <a href="tel:${c.phone}" class="contact-btn">📞 اتصل</a>
+      ${!isMine ? `<button class="chat-open-btn" onclick="openChat('${c.user_id}', '${c.name}')">💬 راسل</button>` : ''}
+    </div>
+
+    <div class="card">
+      <h3>⭐ التقييم</h3>
+      <p style="text-align:center;font-size:16px;font-weight:700">
+        ${c.rating > 0 ? `${c.rating.toFixed(1)} من 5` : 'مازال ما تقيّمش'}
+        ${c.rating_count > 0 ? `<span style="color:#999;font-weight:400">(${c.rating_count} تقييم)</span>` : ''}
+      </p>
+      ${!isMine ? `
+        <p style="text-align:center;margin-top:16px;font-size:14px">قيّم هاد الحريفي:</p>
+        <div class="rate-stars" id="rateStars">
+          ${[1,2,3,4,5].map(i => `<span class="star" onclick="selectRating(${i})">☆</span>`).join('')}
+        </div>
+        <button class="btn teal-btn" onclick="submitRating()">أرسل التقييم</button>
+      ` : '<p style="text-align:center;color:#999;font-size:13px">ما تقدرش تقيّم راسك 😄</p>'}
+    </div>
+  `;
+  if (currentRatingSelection > 0) selectRating(currentRatingSelection);
+}
+
+function selectRating(val) {
+  currentRatingSelection = val;
+  document.querySelectorAll('#rateStars .star').forEach((s, i) => {
+    s.textContent = i < val ? '★' : '☆';
+    s.style.color = i < val ? '#ffb300' : '#ccc';
+  });
+}
+
+async function submitRating() {
+  if (currentRatingSelection === 0) { showToast('⚠️ اختار النجوم'); return; }
+  try {
+    const c = craftsmen.find(x => x.id === currentDetailId);
+    let ratings = c.ratings || [];
+    ratings.push(currentRatingSelection);
+    const newCount = ratings.length;
+    const newRating = ratings.reduce((a, b) => a + b, 0) / newCount;
+
+    await _supabase.from('craftsmen').update({ ratings, rating_count: newCount, rating: newRating }).eq('id', currentDetailId);
+    await loadCraftsmen();
+    renderDetailContent();
+    showToast('✅ شكراً على التقييم!');
+  } catch (e) { console.error(e); showToast('❌ مشكل ف التقييم'); }
+}
+
+// ==================== 7. رفع الصور ====================
+function previewPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('⚠️ الصورة كبيرة (ماكس 2MB)'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    uploadedPhoto = ev.target.result;
+    const img = document.getElementById('avatarPreview');
+    img.src = uploadedPhoto;
+    img.style.display = 'block';
+    document.getElementById('avatarPlaceholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadPhoto(file, id) {
+  if (!file) return '';
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${id}-${Date.now()}.${fileExt}`;
+    const { error } = await _supabase.storage.from('craftsmen').upload(fileName, file);
+    if (error) throw error;
+    const { data: urlData } = _supabase.storage.from('craftsmen').getPublicUrl(fileName);
+    return urlData.publicUrl;
+  } catch (e) { console.error('❌ خطأ ف رفع الصورة:', e); return ''; }
+}
+
+// ==================== 8. الشات ====================
+function openChat(partnerId, partnerName) {
+  if (!partnerId) { showToast('⚠️ هاد الحريفي مازال ما عندو حساب'); return; }
+  currentChatPartnerId = partnerId;
+  document.getElementById('chatTitle').textContent = partnerName;
+  const myId = currentAuthUser.id;
+  chatRoomId = [myId, partnerId].sort().join('_');
+  showScreen('chatScreen');
+  document.getElementById('chatMessages').innerHTML = '<p style="text-align:center;color:#999;padding:20px;">⏳ تحميل...</p>';
+  listenToMessages();
+}
+
+async function listenToMessages() {
+  if (chatSubscription) _supabase.removeSubscription(chatSubscription);
+  const { data } = await _supabase.from('messages').select('*').eq('room_id', chatRoomId).order('created_at', { ascending: true });
+  renderMessages(data || []);
+
+  chatSubscription = _supabase.channel('chat')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${chatRoomId}` }, payload => {
+      appendMessage(payload.new);
+    }).subscribe();
+}
+
+function renderMessages(msgs) {
+  const container = document.getElementById('chatMessages');
+  if (msgs.length === 0) { container.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">بدا المحادثة!</p>'; return; }
+  container.innerHTML = '';
+  msgs.forEach(m => appendMessage(m));
+}
+
+function appendMessage(msg) {
+  const container = document.getElementById('chatMessages');
+  if (container.innerHTML.includes('بدا المحادثة!')) container.innerHTML = '';
+  const isMine = msg.sender_uid === currentAuthUser.id;
+  const time = new Date(msg.created_at).toLocaleTimeString('ar-MA', { hour: '2-digit', minute: '2-digit' });
+  const div = document.createElement('div');
+  div.className = `msg ${isMine ? 'mine' : 'theirs'}`;
+  div.innerHTML = `${msg.text}<div class="msg-time">${time}</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  const { error } = await _supabase.from('messages').insert({
+    room_id: chatRoomId,
+    sender_uid: currentAuthUser.id,
+    sender_name: currentProfile.name,
+    text: text
+  });
+  if (error) showToast('❌ ما صيفطناش الرسالة');
+}
+
+function backFromChat() {
+  if (chatSubscription) _supabase.removeSubscription(chatSubscription);
+  chatSubscription = null;
+  if (currentProfile.role === 'craftsman') { renderMyProfile(); showScreen('myProfileScreen'); } else { showScreen('detailScreen'); }
+}
+
+// ==================== 9. صندوق الرسائل (Inbox) ====================
+async function openInbox() {
+  showScreen('inboxScreen');
+  const container = document.getElementById('inboxList');
+  container.innerHTML = '<p style="text-align:center;color:#999;">⏳ تحميل الرسائل...</p>';
+
+  try {
+    const myId = currentAuthUser.id;
+    const { data, error } = await _supabase.from('messages').select('*').or(`room_id.like.%${myId}%`).order('created_at', { ascending: false });
+
+    if (error) throw error;
+    if (!data || data.length === 0) { container.innerHTML = '<p style="text-align:center;color:#999;margin-top:30px;">مازال ما عندك حتى رسالة 📭</p>'; return; }
+
+    const chats = {};
+    data.forEach(msg => { if (!chats[msg.room_id]) chats[msg.room_id] = msg; });
+
+    let html = '';
+    for (const roomId in chats) {
+      const lastMsg = chats[roomId];
+      const isMine = lastMsg.sender_uid === myId;
+      const ids = roomId.split('_');
+      const partnerId = ids.find(id => id !== myId);
+      
+      let partnerName = 'مستخدم';
+      if (currentProfile.role === 'craftsman') {
+         partnerName = !isMine ? lastMsg.sender_name : 'مستهلك';
+         if (isMine) partnerName = 'مستهلك';
+      } else {
+         const craftsman = craftsmen.find(c => c.user_id === partnerId);
+         partnerName = craftsman ? craftsman.name : 'حريفي';
+      }
+      const partnerLetter = partnerName.charAt(0);
+
+      html += `
+        <div class="inbox-item" onclick="openChatFromInbox('${roomId}', '${partnerId}', '${partnerName}')">
+          <div class="inbox-avatar">${partnerLetter}</div>
+          <div class="inbox-info">
+            <h4>${partnerName}</h4>
+            <p>${isMine ? 'أنت: ' : ''}${lastMsg.text}</p>
+          </div>
+        </div>
+      `;
+    }
+    container.innerHTML = html;
+  } catch (e) { console.error(e); container.innerHTML = '<p style="text-align:center;color:red;">مشكل ف تحميل الرسائل</p>'; }
+}
+
+function openChatFromInbox(roomId, partnerId, partnerName) {
+  currentChatPartnerId = partnerId;
+  chatRoomId = roomId;
+  document.getElementById('chatTitle').textContent = partnerName;
+  showScreen('chatScreen');
+  document.getElementById('chatMessages').innerHTML = '<p style="text-align:center;color:#999;padding:20px;">⏳ تحميل...</p>';
+  listenToMessages();
+}
+
+function backFromInbox() {
+  if (currentProfile.role === 'craftsman') { renderMyProfile(); showScreen('myProfileScreen'); } else { showScreen('listScreen'); }
+}
+
+// ==================== تنبيه ====================
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// ==================== تشغيل ====================
+init();
