@@ -456,8 +456,7 @@ function backFromChat() {
       renderMyProfile(); 
       showScreen('myProfileScreen'); 
     } else { 
-      showScreen('detailScreen'); 
-    }
+      showScreen('detailScreen');}
   }
 }
   
