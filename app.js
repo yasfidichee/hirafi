@@ -459,12 +459,6 @@ function backFromChat() {
       showScreen('detailScreen');}
   }
 }
-  
-  if (currentProfile.role === 'craftsman') { 
-    renderMyProfile(); 
-    showScreen('myProfileScreen'); 
-  } else { 
-    showScreen('detailScreen');} 
 
 // ==================== 9. صندوق الرسائل (Inbox) ====================
 async function openInbox() {
