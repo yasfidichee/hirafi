@@ -14,12 +14,10 @@ let selectedCity = 'الكل';
 let minRating = 0;
 let currentRatingSelection = 0;
 let uploadedPhoto = '';
-let chatSource = 'profile'; // غادي يخلي التطبيق يتفكر منين جيتي
-
-// الشات
 let currentChatPartnerId = null;
 let chatSubscription = null;
 let chatRoomId = null;
+let chatSource = 'profile'; // <--- زدنا هادي
 
 // ==================== 1. التهيئة ====================
 async function init() {
@@ -27,7 +25,7 @@ async function init() {
     if (session) {
       currentAuthUser = session.user;
       
-      const { data } = await _supabase.from('profiles').select('*').eq('id', currentAuthUser.id).single();
+      const { data } = await _supabase.from('profiles').select('*').eq('id', currentAuthUser.id).maybeSingle();
       if (data) {
         currentProfile = data;
         routeUser();
@@ -115,8 +113,21 @@ function showAuthError(msg) {
 }
 
 async function logout() {
-  await _supabase.auth.signOut();
-  showToast('خارج من الحساب');
+  if (chatSubscription) {
+    _supabase.removeChannel(chatSubscription);
+    chatSubscription = null;
+  }
+  currentProfile = null;
+  currentAuthUser = null;
+  showScreen('authScreen');
+  showToast('✅ خرجتي بنجاح');
+  localStorage.clear(); 
+  sessionStorage.clear();
+  try {
+    _supabase.auth.signOut().catch(e => console.log('SignOut error:', e));
+  } catch(e) {
+    console.log(e);
+  }
 }
 
 // ==================== 3. التنقل ====================
@@ -383,7 +394,7 @@ async function uploadPhoto(file, id) {
 function openChat(partnerId, partnerName) {
   if (!partnerId) { showToast('⚠️ هاد الحريفي مازال ما عندو حساب'); return; }
   currentChatPartnerId = partnerId;
-  chatSource = profile;
+  chatSource = 'profile'; // <--- 
   document.getElementById('chatTitle').textContent = partnerName;
   const myId = currentAuthUser.id;
   chatRoomId = [myId, partnerId].sort().join('_');
@@ -401,10 +412,17 @@ async function listenToMessages() {
   const { data } = await _supabase.from('messages').select('*').eq('room_id', chatRoomId).order('created_at', { ascending: true });
   renderMessages(data || []);
 
-  chatSubscription = _supabase.channel(chatRoomId) // هنا درنا اسم فريد
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${chatRoomId}` }, payload => {
-      appendMessage(payload.new);
-    }).subscribe();
+  chatSubscription = _supabase.channel('any-chat-room')
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'messages' },
+      (payload) => {
+        if (payload.new.room_id === chatRoomId) {
+          appendMessage(payload.new);
+        }
+      }
+    )
+    .subscribe();
 }
 
 function renderMessages(msgs) {
@@ -430,13 +448,23 @@ async function sendMessage() {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
   if (!text) return;
-  input.value = '';
+  
+  input.value = ''; 
+  
+  const tempMessage = {
+    text: text,
+    sender_uid: currentAuthUser.id,
+    created_at: new Date().toISOString()
+  };
+  appendMessage(tempMessage); 
+  
   const { error } = await _supabase.from('messages').insert({
     room_id: chatRoomId,
     sender_uid: currentAuthUser.id,
     sender_name: currentProfile.name,
     text: text
   });
+  
   if (error) showToast('❌ ما صيفطناش الرسالة');
 }
 
@@ -446,18 +474,18 @@ function backFromChat() {
     chatSubscription = null;
   }
   
-  // إلا كنتي جاي من صندوق الرسائل، رجع لصندوق الرسائل
   if (chatSource === 'inbox') {
     openInbox();
   } 
-  // إلا كنتي جاي من البروفايل، رجع للبروفايل
   else {
     if (currentProfile.role === 'craftsman') { 
       renderMyProfile(); 
       showScreen('myProfileScreen'); 
     } else { 
-      showScreen('detailScreen');}
+      showScreen('detailScreen'); 
+    }
   }
+}
 
 // ==================== 9. صندوق الرسائل (Inbox) ====================
 async function openInbox() {
@@ -503,13 +531,16 @@ async function openInbox() {
       `;
     }
     container.innerHTML = html;
-  } catch (e) { console.error(e); container.innerHTML = '<p style="text-align:center;color:red;">مشكل ف تحميل الرسائل</p>'; }
+  } catch (e) { 
+    console.error(e); 
+    container.innerHTML = '<p style="text-align:center;color:red;">مشكل ف تحميل الرسائل</p>'; 
+  }
 }
 
 function openChatFromInbox(roomId, partnerId, partnerName) {
   currentChatPartnerId = partnerId;
   chatRoomId = roomId;
-  chatSource = inbox;
+  chatSource = 'inbox'; // <--- 
   document.getElementById('chatTitle').textContent = partnerName;
   showScreen('chatScreen');
   document.getElementById('chatMessages').innerHTML = '<p style="text-align:center;color:#999;padding:20px;">⏳ تحميل...</p>';
