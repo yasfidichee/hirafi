@@ -439,10 +439,17 @@ async function sendMessage() {
 }
 
 function backFromChat() {
-  if (chatSubscription) _supabase.removeSubscription(chatSubscription);
-  chatSubscription = null;
-  if (currentProfile.role === 'craftsman') { renderMyProfile(); showScreen('myProfileScreen'); } else { showScreen('detailScreen'); }
-}
+  if (chatSubscription) {
+    _supabase.removeChannel(chatSubscription);
+    chatSubscription = null;
+  }
+  
+  if (currentProfile.role === 'craftsman') { 
+    renderMyProfile(); 
+    showScreen('myProfileScreen'); 
+  } else { 
+    showScreen('detailScreen');} 
+  }
 
 // ==================== 9. صندوق الرسائل (Inbox) ====================
 async function openInbox() {
