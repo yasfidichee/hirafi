@@ -458,7 +458,6 @@ function backFromChat() {
     } else { 
       showScreen('detailScreen');}
   }
-}
 
 // ==================== 9. صندوق الرسائل (Inbox) ====================
 async function openInbox() {
