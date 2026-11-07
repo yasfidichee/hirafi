@@ -465,7 +465,6 @@ function backFromChat() {
     showScreen('myProfileScreen'); 
   } else { 
     showScreen('detailScreen');} 
-  }
 
 // ==================== 9. صندوق الرسائل (Inbox) ====================
 async function openInbox() {
