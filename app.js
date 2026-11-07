@@ -409,9 +409,22 @@ async function listenToMessages() {
     chatSubscription = null;
   }
   
-  const { data } = await _supabase.from('messages').select('*').eq('room_id', chatRoomId).order('created_at', { ascending: true });
+  // 1. هاد السطر هو اللي كنقص فالصورة ديالك (كنعطيوه شي وقت باش الشاشة تحل)
+  await new Promise(resolve => setTimeout(resolve, 200));
+
+  // 2. نجيبو الرسائل من قاعدة البيانات
+  const { data, error } = await _supabase
+    .from('messages')
+    .select('*')
+    .eq('room_id', chatRoomId)
+    .order('created_at', { ascending: true });
+    
+  if (error) console.log("خطأ ف جلب الرسائل:", error);
+  
+  // 3. كنعرضوهم
   renderMessages(data || []);
 
+  // 4. نستنو أي رسالة جديدة تجي (Realtime)
   chatSubscription = _supabase.channel('any-chat-room')
     .on(
       'postgres_changes',
