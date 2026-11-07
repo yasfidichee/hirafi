@@ -14,6 +14,7 @@ let selectedCity = 'الكل';
 let minRating = 0;
 let currentRatingSelection = 0;
 let uploadedPhoto = '';
+let chatSource = 'profile'; // غادي يخلي التطبيق يتفكر منين جيتي
 
 // الشات
 let currentChatPartnerId = null;
@@ -382,6 +383,7 @@ async function uploadPhoto(file, id) {
 function openChat(partnerId, partnerName) {
   if (!partnerId) { showToast('⚠️ هاد الحريفي مازال ما عندو حساب'); return; }
   currentChatPartnerId = partnerId;
+  chatSource = profile;
   document.getElementById('chatTitle').textContent = partnerName;
   const myId = currentAuthUser.id;
   chatRoomId = [myId, partnerId].sort().join('_');
@@ -444,8 +446,19 @@ function backFromChat() {
     chatSubscription = null;
   }
   
-  // هنا بدلنا باش يرجع لصندوق الرسائل ديريكت
-  openInbox(); 
+  // إلا كنتي جاي من صندوق الرسائل، رجع لصندوق الرسائل
+  if (chatSource === 'inbox') {
+    openInbox();
+  } 
+  // إلا كنتي جاي من البروفايل، رجع للبروفايل
+  else {
+    if (currentProfile.role === 'craftsman') { 
+      renderMyProfile(); 
+      showScreen('myProfileScreen'); 
+    } else { 
+      showScreen('detailScreen'); 
+    }
+  }
 }
   
   if (currentProfile.role === 'craftsman') { 
@@ -505,6 +518,7 @@ async function openInbox() {
 function openChatFromInbox(roomId, partnerId, partnerName) {
   currentChatPartnerId = partnerId;
   chatRoomId = roomId;
+  chatSource = inbox;
   document.getElementById('chatTitle').textContent = partnerName;
   showScreen('chatScreen');
   document.getElementById('chatMessages').innerHTML = '<p style="text-align:center;color:#999;padding:20px;">⏳ تحميل...</p>';
