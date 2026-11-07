@@ -17,7 +17,7 @@ let uploadedPhoto = '';
 let currentChatPartnerId = null;
 let chatSubscription = null;
 let chatRoomId = null;
-let chatSource = 'profile'; // <--- زدنا هادي
+let chatSource = 'profile'; // كيتفكر منين جيتي (inbox ولا profile)
 
 // ==================== 1. التهيئة ====================
 async function init() {
@@ -44,7 +44,7 @@ async function init() {
   await loadCraftsmen();
 }
 
-// ==================== 2. Auth ====================
+// ==================== 2. Auth (تسجيل الدخول) ====================
 function toggleAuthForm(e) {
   e.preventDefault();
   const loginF = document.getElementById('loginForm');
@@ -394,7 +394,7 @@ async function uploadPhoto(file, id) {
 function openChat(partnerId, partnerName) {
   if (!partnerId) { showToast('⚠️ هاد الحريفي مازال ما عندو حساب'); return; }
   currentChatPartnerId = partnerId;
-  chatSource = 'profile'; // <--- 
+  chatSource = 'profile'; // جاي من البروفايل
   document.getElementById('chatTitle').textContent = partnerName;
   const myId = currentAuthUser.id;
   chatRoomId = [myId, partnerId].sort().join('_');
@@ -434,9 +434,18 @@ function renderMessages(msgs) {
 
 function appendMessage(msg) {
   const container = document.getElementById('chatMessages');
+  
+  // حماية من تكرار الرسائل
+  const msgElements = container.querySelectorAll('.msg');
+  for (let el of msgElements) {
+    if (el.innerHTML.includes(msg.text)) return; 
+  }
+
   if (container.innerHTML.includes('بدا المحادثة!')) container.innerHTML = '';
+  
   const isMine = msg.sender_uid === currentAuthUser.id;
   const time = new Date(msg.created_at).toLocaleTimeString('ar-MA', { hour: '2-digit', minute: '2-digit' });
+  
   const div = document.createElement('div');
   div.className = `msg ${isMine ? 'mine' : 'theirs'}`;
   div.innerHTML = `${msg.text}<div class="msg-time">${time}</div>`;
@@ -449,15 +458,9 @@ async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
   
-  input.value = ''; 
+  input.value = ''; // نمسحو الخانة ديريكت
   
-  const tempMessage = {
-    text: text,
-    sender_uid: currentAuthUser.id,
-    created_at: new Date().toISOString()
-  };
-  appendMessage(tempMessage); 
-  
+  // كنصيفطو للسيرفر، والسيرفر هو اللي غادي يرجعها لينا ونعرضوها
   const { error } = await _supabase.from('messages').insert({
     room_id: chatRoomId,
     sender_uid: currentAuthUser.id,
@@ -540,7 +543,7 @@ async function openInbox() {
 function openChatFromInbox(roomId, partnerId, partnerName) {
   currentChatPartnerId = partnerId;
   chatRoomId = roomId;
-  chatSource = 'inbox'; // <--- 
+  chatSource = 'inbox'; // جاي من صندوق الرسائل
   document.getElementById('chatTitle').textContent = partnerName;
   showScreen('chatScreen');
   document.getElementById('chatMessages').innerHTML = '<p style="text-align:center;color:#999;padding:20px;">⏳ تحميل...</p>';
