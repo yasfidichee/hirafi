@@ -391,11 +391,15 @@ function openChat(partnerId, partnerName) {
 }
 
 async function listenToMessages() {
-  if (chatSubscription) _supabase.removeSubscription(chatSubscription);
+  if (chatSubscription) {
+    _supabase.removeChannel(chatSubscription);
+    chatSubscription = null;
+  }
+  
   const { data } = await _supabase.from('messages').select('*').eq('room_id', chatRoomId).order('created_at', { ascending: true });
   renderMessages(data || []);
 
-  chatSubscription = _supabase.channel('chat')
+  chatSubscription = _supabase.channel(chatRoomId) // هنا درنا اسم فريد
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${chatRoomId}` }, payload => {
       appendMessage(payload.new);
     }).subscribe();
