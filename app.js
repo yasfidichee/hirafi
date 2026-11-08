@@ -275,10 +275,19 @@ async function loadCraftsmen() {
 }
 
 function renderCityChips() {
-  const cities = ['الكل', ...new Set(craftsmen.map(c => c.city))];
-  document.getElementById('cityChips').innerHTML = cities.map(city =>
-    `<button class="chip ${city === selectedCity ? 'active' : ''}" onclick="selectCity('${city}')">${city}</button>`
-  ).join('');
+  const t = translations[currentLang];
+  // كنعوضو "الكل" بالترجمة ديالها
+  const allCitiesText = currentLang === 'ar' ? 'الكل' : (currentLang === 'fr' ? 'Tout' : 'All');
+  
+  // كنجيبو المدن من الداتا، وكنعوضو "الكل" بالترجمة
+  let cities = [...new Set(craftsmen.map(c => c.city))];
+  
+  document.getElementById('cityChips').innerHTML = `
+    <button class="chip ${selectedCity === 'الكل' ? 'active' : ''}" onclick="selectCity('الكل')">${allCitiesText}</button>
+    ${cities.map(city =>
+      `<button class="chip ${city === selectedCity ? 'active' : ''}" onclick="selectCity('${city}')">${city}</button>`
+    ).join('')}
+  `;
 }
 
 function selectCity(city) { selectedCity = city; renderCityChips(); renderCraftsmen(); }
