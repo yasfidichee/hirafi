@@ -1,79 +1,78 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="htmlRoot">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>حريفي - أفضل الحرفيين بين يديك</title>
+  <title id="pageTitle">حريفي - أفضل الحرفيين بين يديك</title>
   
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- ========== شاشة الترحيب ========== -->
+  <!-- شاشة الترحيب -->
   <section id="splashScreen" class="screen active">
     <div class="splash-content">
-      <div class="logo-box"><h1 class="logo-text">حريفي</h1></div>
-      <p class="splash-sub">أفضل الحرفيين بين يديك</p>
+      <div class="logo-box"><h1 class="logo-text" data-i18n="appName">حريفي</h1></div>
+      <p class="splash-sub" data-i18n="tagline">أفضل الحرفيين بين يديك</p>
     </div>
   </section>
 
-  <!-- ========== شاشة تسجيل الدخول / إنشاء حساب ========== -->
+  <!-- شاشة تسجيل الدخول -->
   <section id="authScreen" class="screen">
+    <button class="back-btn" onclick="toggleLanguage()" id="langBtnAuth" style="position: absolute; top: 20px; left: 20px; font-weight:bold; color:#00897b; font-size: 16px;">🌐 FR</button>
     <div class="container login-container">
-      <div class="login-logo">حريفي</div>
-      <p class="login-sub">مرحبا بيك، دخل للموقع</p>
+      <div class="login-logo" data-i18n="appName">حريفي</div>
+      <p class="login-sub" data-i18n="welcomeLogin">مرحبا بيك، دخل للموقع</p>
       
       <div id="authError" style="color: #e53935; margin-bottom: 10px; font-size: 14px; font-weight: bold; display: none;"></div>
 
-      <!-- فورم الدخول -->
       <form id="loginForm" onsubmit="loginUser(event)">
-        <label>البريد الإلكتروني</label>
+        <label data-i18n="email">البريد الإلكتروني</label>
         <input type="email" id="loginEmail" placeholder="ex: test@test.com" required>
-        <label>كلمة السر</label>
+        <label data-i18n="password">كلمة السر</label>
         <input type="password" id="loginPassword" placeholder="********" required minlength="6">
-        <button type="submit" class="btn teal-btn" id="loginBtn">تسجيل الدخول</button>
+        <button type="submit" class="btn teal-btn" id="loginBtn" data-i18n="loginBtn">تسجيل الدخول</button>
       </form>
 
-      <div class="divider"><span>أو</span></div>
+      <div class="divider"><span data-i18n="or">أو</span></div>
 
-      <!-- فورم التسجيل -->
       <form id="registerForm" onsubmit="registerUser(event)" style="display:none;">
-        <label>الاسم الكامل</label>
-        <input type="text" id="regName" placeholder="مثال: أحمد بن علي" required>
-        <label>البريد الإلكتروني</label>
+        <label data-i18n="fullName">الاسم الكامل</label>
+        <input type="text" id="regName" data-i18n-placeholder="namePlaceholder" placeholder="مثال: أحمد بن علي" required>
+        <label data-i18n="email">البريد الإلكتروني</label>
         <input type="email" id="regEmail" placeholder="ex: test@test.com" required>
-        <label>كلمة السر (6 حروف على الأقل)</label>
+        <label data-i18n="passwordLabel">كلمة السر (6 حروف على الأقل)</label>
         <input type="password" id="regPassword" placeholder="********" required minlength="6">
-        <button type="submit" class="btn orange-btn" id="regBtn">إنشاء حساب</button>
+        <button type="submit" class="btn orange-btn" id="regBtn" data-i18n="registerBtn">إنشاء حساب</button>
       </form>
 
       <p style="text-align:center; margin-top: 20px; font-size: 14px;">
-        <span id="toggleAuthText">ما عندكش حساب؟ </span>
-        <a href="#" id="toggleAuthBtn" onclick="toggleAuthForm(event)" style="color: #00897b; font-weight: bold; text-decoration: none;">صاوب حساب جديد</a>
+        <span id="toggleAuthText" data-i18n="noAccount">ما عندكش حساب؟ </span>
+        <a href="#" id="toggleAuthBtn" onclick="toggleAuthForm(event)" style="color: #00897b; font-weight: bold; text-decoration: none;" data-i18n="createAccount">صاوب حساب جديد</a>
       </p>
     </div>
   </section>
 
-  <!-- ========== اختيار الدور ========== -->
+  <!-- اختيار الدور -->
   <section id="roleScreen" class="screen">
     <div class="container">
-      <h2 class="title">مرحبا بيك <span id="welcomeName"></span></h2>
-      <p class="subtitle">واش نتا حريفي ولا كتقلب على شي حريفي؟</p>
+      <h2 class="title"><span data-i18n="welcome">مرحبا بيك</span> <span id="welcomeName"></span></h2>
+      <p class="subtitle" data-i18n="roleQuestion">واش نتا حريفي ولا كتقلب على شي حريفي؟</p>
       <div class="choice-list">
         <div class="choice-card orange" onclick="goToConsumer()">
           <div class="icon-circle"><span>🔍</span></div>
           <div class="choice-text">
-            <h3>أنا مستهلك</h3>
-            <p>كنقلب على حريفي</p>
+            <h3 data-i18n="consumer">أنا مستهلك</h3>
+            <p data-i18n="consumerSub">كنقلب على حريفي</p>
           </div>
           <span class="arrow">‹</span>
         </div>
         <div class="choice-card teal" onclick="goToCraftsman()">
           <div class="icon-circle"><span>🔧</span></div>
           <div class="choice-text">
-            <h3>أنا حريفي</h3>
-            <p>بغيت نقدم خدماتي</p>
+            <h3 data-i18n="craftsman">أنا حريفي</h3>
+            <p data-i18n="craftsmanSub">بغيت نقدم خدماتي</p>
           </div>
           <span class="arrow">‹</span>
         </div>
@@ -81,113 +80,115 @@
     </div>
   </section>
 
-  <!-- ========== فورم المستهلك ========== -->
+  <!-- فورم المستهلك -->
   <section id="consumerScreen" class="screen">
     <div class="container">
-      <button class="back-btn" onclick="showScreen('roleScreen')">→ رجوع</button>
-      <h2 class="title">معلومات المستهلك</h2>
-      <p class="subtitle">عرفنا عليك شوية</p>
+      <button class="back-btn" onclick="showScreen('roleScreen')" data-i18n="back">→ رجوع</button>
+      <h2 class="title" data-i18n="consumerInfo">معلومات المستهلك</h2>
+      <p class="subtitle" data-i18n="tellUsAboutYou">عرفنا عليك شوية</p>
       <form id="consumerForm" onsubmit="submitConsumer(event)">
-        <label>الاسم الكامل</label>
-        <input type="text" id="consumerName" placeholder="مثال: أحمد بن علي" required>
-        <label>العمر</label>
+        <label data-i18n="fullName">الاسم الكامل</label>
+        <input type="text" id="consumerName" data-i18n-placeholder="namePlaceholder" placeholder="مثال: أحمد بن علي" required>
+        <label data-i18n="age">العمر</label>
         <input type="number" id="consumerAge" placeholder="مثال: 25" min="16" required>
-        <button type="submit" class="btn orange-btn">متابعة</button>
+        <button type="submit" class="btn orange-btn" data-i18n="continue">متابعة</button>
       </form>
     </div>
   </section>
 
-  <!-- ========== فورم الحريفي ========== -->
+  <!-- فورم الحريفي -->
   <section id="craftsmanScreen" class="screen">
     <div class="container">
-      <button class="back-btn" onclick="showScreen('roleScreen')">→ رجوع</button>
-      <h2 class="title">معلومات الحريفي</h2>
+      <button class="back-btn" onclick="showScreen('roleScreen')" data-i18n="back">→ رجوع</button>
+      <h2 class="title" data-i18n="craftsmanInfo">معلومات الحريفي</h2>
 
       <div class="avatar-picker" onclick="document.getElementById('photoInput').click()">
         <img id="avatarPreview" src="" alt="" style="display:none;">
         <span id="avatarPlaceholder">📷</span>
       </div>
-      <p class="hint">اضغط باش تزيد صورة</p>
+      <p class="hint" data-i18n="addPhoto">اضغط باش تزيد صورة</p>
       <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="previewPhoto(event)">
 
       <form id="craftsmanForm" onsubmit="submitCraftsman(event)">
-        <label>الاسم الكامل</label>
-        <input type="text" id="craftName" placeholder="مثال: محمد العلمي" required>
-        <label>المهنة</label>
-        <input type="text" id="craftProfession" placeholder="كهربائي، صباغ، نجار..." required>
-        <label>المدينة</label>
-        <input type="text" id="craftCity" placeholder="مثال: الدار البيضاء" required>
-        <label>نبذة عليك (bio)</label>
-        <textarea id="craftBio" rows="4" placeholder="عرف راسك بالحرفة ديالك..." required></textarea>
-        <label>رقم الهاتف</label>
+        <label data-i18n="fullName">الاسم الكامل</label>
+        <input type="text" id="craftName" data-i18n-placeholder="craftNamePlaceholder" placeholder="مثال: محمد العلمي" required>
+        <label data-i18n="profession">المهنة</label>
+        <input type="text" id="craftProfession" data-i18n-placeholder="professionPlaceholder" placeholder="كهربائي، صباغ، نجار..." required>
+        <label data-i18n="city">المدينة</label>
+        <input type="text" id="craftCity" data-i18n-placeholder="cityPlaceholder" placeholder="مثال: الدار البيضاء" required>
+        <label data-i18n="bio">نبذة عليك (bio)</label>
+        <textarea id="craftBio" rows="4" data-i18n-placeholder="bioPlaceholder" placeholder="عرف راسك بالحرفة ديالك..." required></textarea>
+        <label data-i18n="phone">رقم الهاتف</label>
         <input type="tel" id="craftPhone" placeholder="06XXXXXXXX" required>
-        <button type="submit" class="btn teal-btn">إنشاء الحساب</button>
+        <button type="submit" class="btn teal-btn" data-i18n="createProfile">إنشاء الحساب</button>
       </form>
     </div>
   </section>
 
-  <!-- ========== قائمة الحرفيين ========== -->
+  <!-- قائمة الحرفيين -->
   <section id="listScreen" class="screen">
     <div class="top-bar">
-      <h2>الحرفيين</h2>
+      <h2 data-i18n="craftsmenList">الحرفيين</h2>
       <div class="top-actions">
-        <button class="icon-btn" onclick="openInbox()" title="الرسائل">📥</button>
-        <button class="back-btn light" onclick="logout()">خروج</button>
+        <button class="back-btn light" onclick="toggleLanguage()" id="langBtn" style="font-weight:bold; color:#ffb300;">🌐 FR</button>
+        <button class="icon-btn" onclick="openInbox()" title="Inbox">📥</button>
+        <button class="back-btn light" onclick="logout()" data-i18n="logout">خروج</button>
       </div>
     </div>
     <div class="filters">
-      <input type="text" id="searchInput" placeholder="🔍 قلب على مدينة، اسم، مهنة..." oninput="renderCraftsmen()">
+      <input type="text" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="🔍 قلب على مدينة، اسم، مهنة..." oninput="renderCraftsmen()">
       <div class="chips" id="cityChips"></div>
       <div class="rating-filter">
-        <span>⭐ التقييم الأدنى: <b id="ratingValue">0</b></span>
+        <span data-i18n="minRating">⭐ التقييم الأدنى:</span> <b id="ratingValue">0</b>
         <input type="range" id="ratingFilter" min="0" max="5" step="0.5" value="0" oninput="updateRatingFilter(this.value)">
       </div>
     </div>
     <div id="craftsmenList" class="craftsmen-list"></div>
   </section>
 
-  <!-- ========== تفاصيل الحريفي ========== -->
+  <!-- تفاصيل الحريفي -->
   <section id="detailScreen" class="screen">
     <div class="top-bar teal-bar">
-      <button class="back-btn light" onclick="showScreen('listScreen')">→ رجوع</button>
-      <h2>بروفايل الحريفي</h2>
-      <div style="width:50px"></div>
+      <button class="back-btn light" onclick="showScreen('listScreen')" data-i18n="back">→ رجوع</button>
+      <h2 data-i18n="craftsmanProfile">بروفايل الحريفي</h2>
+      <button class="back-btn light" onclick="toggleLanguage()" id="langBtn2" style="font-weight:bold; color:#ffb300;">🌐 FR</button>
     </div>
     <div id="detailContent" class="container"></div>
   </section>
 
-  <!-- ========== بروفايل الحريفي (ديالي) ========== -->
+  <!-- بروفايل الحريفي (ديالي) -->
   <section id="myProfileScreen" class="screen">
     <div class="top-bar teal-bar">
-      <h2>البروفايل ديالي</h2>
+      <h2 data-i18n="myProfile">البروفايل ديالي</h2>
       <div class="top-actions">
-        <button class="icon-btn" onclick="openInbox()" title="الرسائل">📥</button>
-        <button class="back-btn light" onclick="logout()">خروج</button>
+        <button class="back-btn light" onclick="toggleLanguage()" id="langBtn3" style="font-weight:bold; color:#ffb300;">🌐 FR</button>
+        <button class="icon-btn" onclick="openInbox()">📥</button>
+        <button class="back-btn light" onclick="logout()" data-i18n="logout">خروج</button>
       </div>
     </div>
     <div id="myProfileContent" class="container"></div>
   </section>
 
-  <!-- ========== شاشة قائمة الرسائل ========== -->
+  <!-- صندوق الرسائل -->
   <section id="inboxScreen" class="screen">
     <div class="top-bar">
-      <button class="back-btn light" onclick="backFromInbox()">→ رجوع</button>
-      <h2>صندوق الرسائل</h2>
+      <button class="back-btn light" onclick="backFromInbox()" data-i18n="back">→ رجوع</button>
+      <h2 data-i18n="inbox">صندوق الرسائل</h2>
       <div style="width:50px"></div>
     </div>
     <div id="inboxList" class="container" style="padding-top: 10px;"></div>
   </section>
 
-  <!-- ========== شاشة الشات ========== -->
+  <!-- الشات -->
   <section id="chatScreen" class="screen">
     <div class="top-bar teal-bar">
-      <button class="back-btn light" onclick="backFromChat()">→ رجوع</button>
-      <h2 id="chatTitle">المحادثة</h2>
+      <button class="back-btn light" onclick="backFromChat()" data-i18n="back">→ رجوع</button>
+      <h2 id="chatTitle">...</h2>
       <div style="width:50px"></div>
     </div>
     <div id="chatMessages" class="chat-messages"></div>
     <div class="chat-input-bar">
-      <input type="text" id="chatInput" placeholder="كتب رسالة..." onkeypress="if(event.key==='Enter')sendMessage()">
+      <input type="text" id="chatInput" data-i18n-placeholder="typeMessage" placeholder="كتب رسالة..." onkeypress="if(event.key==='Enter')sendMessage()">
       <button class="send-btn" onclick="sendMessage()">➤</button>
     </div>
   </section>
