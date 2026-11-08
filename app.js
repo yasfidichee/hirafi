@@ -1,11 +1,75 @@
-// ==================== البيانات الافتراضية ====================
-const defaultCraftsmen = [
-  { name: 'محمد العلمي', profession: 'كهربائي', city: 'الدار البيضاء', bio: 'كهربائي محترف خبرة 10 سنين', phone: '0612345678', rating: 4.5, rating_count: 20, ratings: [5,4,5,4,5,4,5,4,5,4], photo: '' },
-  { name: 'يوسف بناني', profession: 'صباغ', city: 'الرباط', bio: 'صباغ ماهر وأسعار مناسبة', phone: '0623456789', rating: 4.0, rating_count: 15, ratings: [4,4,4,5,3,4], photo: '' },
-  { name: 'عبد الله الإدريسي', profession: 'نجار', city: 'مراكش', bio: 'نجار تقليدي وأثاث عصري', phone: '0634567890', rating: 5.0, rating_count: 8, ratings: [5,5,5,5], photo: '' }
-];
+// ==================== الترجمات ====================
+const translations = {
+  ar: {
+    appName: "حريفي", tagline: "أفضل الحرفيين بين يديك",
+    welcomeLogin: "مرحبا بيك، دخل للموقع", email: "البريد الإلكتروني", password: "كلمة السر",
+    passwordLabel: "كلمة السر (6 حروف على الأقل)", loginBtn: "تسجيل الدخول", registerBtn: "إنشاء حساب", or: "أو",
+    noAccount: "ما عندكش حساب؟ ", createAccount: "صاوب حساب جديد",
+    fullName: "الاسم الكامل", namePlaceholder: "مثال: أحمد بن علي", age: "العمر",
+    welcome: "مرحبا بيك", roleQuestion: "واش نتا حريفي ولا كتقلب على شي حريفي؟",
+    consumer: "أنا مستهلك", consumerSub: "كنقلب على حريفي",
+    craftsman: "أنا حريفي", craftsmanSub: "بغيت نقدم خدماتي",
+    consumerInfo: "معلومات المستهلك", tellUsAboutYou: "عرفنا عليك شوية", continue: "متابعة",
+    craftsmanInfo: "معلومات الحريفي", addPhoto: "اضغط باش تزيد صورة",
+    craftNamePlaceholder: "مثال: محمد العلمي", profession: "المهنة", professionPlaceholder: "كهربائي، صباغ، نجار...",
+    city: "المدينة", cityPlaceholder: "مثال: الدار البيضاء", bio: "نبذة عليك (bio)", bioPlaceholder: "عرف راسك بالحرفة ديالك...",
+    phone: "رقم الهاتف", createProfile: "إنشاء الحساب", craftsmenList: "الحرفيين",
+    searchPlaceholder: "🔍 قلب على مدينة، اسم، مهنة...", minRating: "⭐ التقييم الأدنى:",
+    logout: "خروج", back: "→ رجوع", craftsmanProfile: "بروفايل الحريفي", myProfile: "البروفايل ديالي",
+    inbox: "صندوق الرسائل", typeMessage: "كتب رسالة...", contact: "📞 اتصل", message: "💬 راسل",
+    rating: "⭐ التقييم", rateCraftsman: "قيّم هاد الحريفي:", sendRating: "أرسل التقييم",
+    noRating: "مازال ما تقيّمش", you: "أنت: ", consumerName: "مستهلك"
+  },
+  fr: {
+    appName: "Harifi", tagline: "Meilleurs artisans à portée de main",
+    welcomeLogin: "Bienvenue, connectez-vous", email: "Email", password: "Mot de passe",
+    passwordLabel: "Mot de passe (min 6)", loginBtn: "Se connecter", registerBtn: "Créer un compte", or: "OU",
+    noAccount: "Pas de compte? ", createAccount: "Créer un compte",
+    fullName: "Nom complet", namePlaceholder: "Ex: Ahmed Ali", age: "Âge",
+    welcome: "Bienvenue", roleQuestion: "Êtes-vous un artisan ou cherchez-vous un artisan?",
+    consumer: "Je suis client", consumerSub: "Je cherche un artisan",
+    craftsman: "Je suis artisan", craftsmanSub: "Je propose mes services",
+    consumerInfo: "Infos Client", tellUsAboutYou: "Parlez-nous de vous", continue: "Continuer",
+    craftsmanInfo: "Infos Artisan", addPhoto: "Cliquez pour ajouter une photo",
+    craftNamePlaceholder: "Ex: Mohamed Alami", profession: "Métier", professionPlaceholder: "Électricien, Peintre...",
+    city: "Ville", cityPlaceholder: "Ex: Casablanca", bio: "Bio", bioPlaceholder: "Présentez votre métier...",
+    phone: "Téléphone", createProfile: "Créer le profil", craftsmenList: "Artisans",
+    searchPlaceholder: "🔍 Chercher ville, nom, métier...", minRating: "⭐ Note min:",
+    logout: "Déconnexion", back: "→ Retour", craftsmanProfile: "Profil Artisan", myProfile: "Mon Profil",
+    inbox: "Boîte de réception", typeMessage: "Écrire un message...", contact: "📞 Appeler", message: "💬 Message",
+    rating: "⭐ Note", rateCraftsman: "Notez cet artisan:", sendRating: "Envoyer la note",
+    noRating: "Pas encore noté", you: "Vous: ", consumerName: "Client"
+  },
+  en: {
+    appName: "Harifi", tagline: "Best artisans at your fingertips",
+    welcomeLogin: "Welcome, please login", email: "Email", password: "Password",
+    passwordLabel: "Password (min 6)", loginBtn: "Login", registerBtn: "Create Account", or: "OR",
+    noAccount: "No account? ", createAccount: "Create one",
+    fullName: "Full Name", namePlaceholder: "Ex: Ahmed Ali", age: "Age",
+    welcome: "Welcome", roleQuestion: "Are you an artisan or looking for one?",
+    consumer: "I'm a client", consumerSub: "Looking for an artisan",
+    craftsman: "I'm an artisan", craftsmanSub: "I offer services",
+    consumerInfo: "Client Info", tellUsAboutYou: "Tell us about you", continue: "Continue",
+    craftsmanInfo: "Artisan Info", addPhoto: "Click to add a photo",
+    craftNamePlaceholder: "Ex: Mohamed Alami", profession: "Profession", professionPlaceholder: "Electrician, Painter...",
+    city: "City", cityPlaceholder: "Ex: Casablanca", bio: "Bio", bioPlaceholder: "Describe your work...",
+    phone: "Phone", createProfile: "Create Account", craftsmenList: "Artisans",
+    searchPlaceholder: "🔍 Search city, name, job...", minRating: "⭐ Min rating:",
+    logout: "Logout", back: "→ Back", craftsmanProfile: "Artisan Profile", myProfile: "My Profile",
+    inbox: "Inbox", typeMessage: "Type a message...", contact: "📞 Call", message: "💬 Message",
+    rating: "⭐ Rating", rateCraftsman: "Rate this artisan:", sendRating: "Submit Rating",
+    noRating: "Not rated yet", you: "You: ", consumerName: "Client"
+  }
+};
+
+let currentLang = localStorage.getItem('appLang') || 'ar';
 
 // ==================== المتغيرات ====================
+const defaultCraftsmen = [
+  { name: 'محمد العلمي', profession: 'كهربائي', city: 'الدار البيضاء', bio: 'كهربائي محترف خبرة 10 سنين', phone: '0612345678', rating: 4.5, rating_count: 20, ratings: [5,4,5,4,5,4,5,4,5,4], photo: '' },
+  { name: 'يوسف بناني', profession: 'صباغ', city: 'الرباط', bio: 'صباغ ماهر وأسعار مناسبة', phone: '0623456789', rating: 4.0, rating_count: 15, ratings: [4,4,4,5,3,4], photo: '' }
+];
+
 let craftsmen = [];
 let currentAuthUser = null;
 let currentProfile = null;
@@ -17,14 +81,13 @@ let uploadedPhoto = '';
 let currentChatPartnerId = null;
 let chatSubscription = null;
 let chatRoomId = null;
-let chatSource = 'profile'; // كيتفكر منين جيتي (inbox ولا profile)
+let chatSource = 'profile';
 
 // ==================== 1. التهيئة ====================
 async function init() {
   _supabase.auth.onAuthStateChange(async (event, session) => {
     if (session) {
       currentAuthUser = session.user;
-      
       const { data } = await _supabase.from('profiles').select('*').eq('id', currentAuthUser.id).maybeSingle();
       if (data) {
         currentProfile = data;
@@ -42,9 +105,10 @@ async function init() {
 
   await seedIfEmpty();
   await loadCraftsmen();
+  updateLanguageUI();
 }
 
-// ==================== 2. Auth (تسجيل الدخول) ====================
+// ==================== 2. Auth ====================
 function toggleAuthForm(e) {
   e.preventDefault();
   const loginF = document.getElementById('loginForm');
@@ -55,14 +119,15 @@ function toggleAuthForm(e) {
   if (loginF.style.display === 'none') {
     loginF.style.display = 'block';
     regF.style.display = 'none';
-    toggleTxt.textContent = 'ما عندكش حساب؟ ';
-    toggleBtn.textContent = 'صاوب حساب جديد';
+    toggleTxt.setAttribute('data-i18n', 'noAccount');
+    toggleBtn.setAttribute('data-i18n', 'createAccount');
   } else {
     loginF.style.display = 'none';
     regF.style.display = 'block';
-    toggleTxt.textContent = 'عندك حساب من قبل؟ ';
-    toggleBtn.textContent = 'دخل لحسابك';
+    toggleTxt.textContent = 'عندك حساب من قبل؟ '; 
+    toggleBtn.textContent = 'دخل لحسابك'; 
   }
+  updateLanguageUI();
 }
 
 async function registerUser(e) {
@@ -72,21 +137,15 @@ async function registerUser(e) {
   const password = document.getElementById('regPassword').value;
 
   document.getElementById('regBtn').disabled = true;
-  document.getElementById('regBtn').textContent = 'جاري التسجيل...';
-
   const { data, error } = await _supabase.auth.signUp({ email, password });
 
   if (error) {
     showAuthError(error.message);
-  } else {
-    if (data.user) {
-      await _supabase.from('profiles').insert({ id: data.user.id, name: name, role: 'unknown' });
-      showToast('✅ تسجلت بنجاح!');
-    }
+  } else if (data.user) {
+    await _supabase.from('profiles').insert({ id: data.user.id, name: name, role: 'unknown' });
+    showToast('✅ Success');
   }
-  
   document.getElementById('regBtn').disabled = false;
-  document.getElementById('regBtn').textContent = 'إنشاء حساب';
 }
 
 async function loginUser(e) {
@@ -95,14 +154,9 @@ async function loginUser(e) {
   const password = document.getElementById('loginPassword').value;
 
   document.getElementById('loginBtn').disabled = true;
-  document.getElementById('loginBtn').textContent = 'جاري الدخول...';
-
   const { error } = await _supabase.auth.signInWithPassword({ email, password });
-
   if (error) showAuthError(error.message);
-  
   document.getElementById('loginBtn').disabled = false;
-  document.getElementById('loginBtn').textContent = 'تسجيل الدخول';
 }
 
 function showAuthError(msg) {
@@ -113,21 +167,11 @@ function showAuthError(msg) {
 }
 
 async function logout() {
-  if (chatSubscription) {
-    _supabase.removeChannel(chatSubscription);
-    chatSubscription = null;
-  }
-  currentProfile = null;
-  currentAuthUser = null;
+  if (chatSubscription) { _supabase.removeChannel(chatSubscription); chatSubscription = null; }
+  currentProfile = null; currentAuthUser = null;
   showScreen('authScreen');
-  showToast('✅ خرجتي بنجاح');
-  localStorage.clear(); 
-  sessionStorage.clear();
-  try {
-    _supabase.auth.signOut().catch(e => console.log('SignOut error:', e));
-  } catch(e) {
-    console.log(e);
-  }
+  localStorage.clear(); sessionStorage.clear();
+  try { _supabase.auth.signOut().catch(e => console.log(e)); } catch(e) {}
 }
 
 // ==================== 3. التنقل ====================
@@ -140,15 +184,10 @@ function showScreen(id) {
 function routeUser() {
   if (!currentProfile) return;
   if (currentProfile.role === 'consumer') {
-    showScreen('listScreen');
-    renderCityChips();
-    renderCraftsmen();
+    showScreen('listScreen'); renderCityChips(); renderCraftsmen();
   } else if (currentProfile.role === 'craftsman') {
-    renderMyProfile();
-    showScreen('myProfileScreen');
-  } else {
-    showScreen('roleScreen');
-  }
+    renderMyProfile(); showScreen('myProfileScreen');
+  } else { showScreen('roleScreen'); }
 }
 
 function goToConsumer() { showScreen('consumerScreen'); }
@@ -159,15 +198,11 @@ async function submitConsumer(e) {
   e.preventDefault();
   const name = document.getElementById('consumerName').value;
   const age = parseInt(document.getElementById('consumerAge').value);
-
-  if (!name || !age || age < 16) { showToast('⚠️ دخل معلومات صحيحة'); return; }
+  if (!name || !age || age < 16) return;
 
   await _supabase.from('profiles').update({ name, role: 'consumer', age }).eq('id', currentAuthUser.id);
-
   currentProfile = { ...currentProfile, name, role: 'consumer', age };
-  renderCityChips();
-  renderCraftsmen();
-  showScreen('listScreen');
+  renderCityChips(); renderCraftsmen(); showScreen('listScreen');
 }
 
 async function submitCraftsman(e) {
@@ -179,16 +214,14 @@ async function submitCraftsman(e) {
   const phone = document.getElementById('craftPhone').value.trim();
   const photoInput = document.getElementById('photoInput');
 
-  if (!name || !profession || !city || !bio || !phone) { showToast('⚠️ عمر جميع الحقول'); return; }
+  if (!name || !profession || !city || !bio || !phone) return;
 
   const btn = e.target.querySelector('button[type="submit"]');
   btn.disabled = true;
-  showToast('⏳ كنحفظو...');
 
   try {
     const { data, error } = await _supabase.from('craftsmen').insert({
-      name, profession, city, bio, phone, photo: '', rating: 0, rating_count: 0, ratings: [],
-      user_id: currentAuthUser.id
+      name, profession, city, bio, phone, photo: '', rating: 0, rating_count: 0, ratings: [], user_id: currentAuthUser.id
     }).select().single();
 
     if (error) throw error;
@@ -196,7 +229,6 @@ async function submitCraftsman(e) {
 
     let photoUrl = '';
     if (photoInput.files.length > 0) {
-      showToast('⏳ كنرفعو الصورة...');
       photoUrl = await uploadPhoto(photoInput.files[0], newId);
       if (photoUrl) await _supabase.from('craftsmen').update({ photo: photoUrl }).eq('id', newId);
     }
@@ -204,20 +236,13 @@ async function submitCraftsman(e) {
     await _supabase.from('profiles').update({ name, role: 'craftsman', craftsman_id: newId }).eq('id', currentAuthUser.id);
     currentProfile = { ...currentProfile, name, role: 'craftsman', craftsman_id: newId };
     
-    await loadCraftsmen();
-    renderMyProfile();
-    showScreen('myProfileScreen');
-    showToast('✅ تسجلت بنجاح!');
-  } catch (err) {
-    console.error(err);
-    showToast('❌ مشكل: ' + err.message);
-  } finally {
-    btn.disabled = false;
-  }
+    await loadCraftsmen(); renderMyProfile(); showScreen('myProfileScreen');
+  } catch (err) { console.error(err); } finally { btn.disabled = false; }
 }
 
 // ==================== 5. عرض البروفايل ====================
 function renderMyProfile() {
+  const t = translations[currentLang];
   const c = craftsmen.find(x => x.id === currentProfile.craftsman_id);
   if (!c) return;
   const avatarStyle = c.photo ? `style="background-image:url('${c.photo}')"` : '';
@@ -230,10 +255,10 @@ function renderMyProfile() {
       <span class="chip-prof">${c.profession}</span>
       <div class="location">📍 ${c.city}</div>
     </div>
-    <div class="card"><h3>نبذة</h3><p>${c.bio}</p></div>
-    <div class="card"><h3>📞 الهاتف</h3><p dir="ltr" style="text-align:right">${c.phone}</p></div>
-    <div class="card"><h3>⭐ التقييم</h3>
-      <p>${c.rating > 0 ? `${c.rating.toFixed(1)} / 5 (${c.rating_count} تقييم)` : 'مازال ما عندك حتى تقييم'}</p>
+    <div class="card"><h3>${t.bio}</h3><p>${c.bio}</p></div>
+    <div class="card"><h3>${t.phone}</h3><p dir="ltr" style="text-align:right">${c.phone}</p></div>
+    <div class="card"><h3>${t.rating}</h3>
+      <p>${c.rating > 0 ? `${c.rating.toFixed(1)} / 5 (${c.rating_count})` : t.noRating}</p>
     </div>
   `;
 }
@@ -274,7 +299,7 @@ function renderCraftsmen() {
   filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
   const listEl = document.getElementById('craftsmenList');
-  if (filtered.length === 0) { listEl.innerHTML = '<div class="empty">🔍 ما لقيناش شي حريفي</div>'; return; }
+  if (filtered.length === 0) { listEl.innerHTML = '<div class="empty">🔍 0</div>'; return; }
 
   listEl.innerHTML = filtered.map(c => {
     const avatarStyle = c.photo ? `style="background-image:url('${c.photo}')"` : '';
@@ -293,13 +318,12 @@ function renderCraftsmen() {
 }
 
 function openDetail(id) {
-  currentDetailId = id;
-  currentRatingSelection = 0;
-  renderDetailContent();
-  showScreen('detailScreen');
+  currentDetailId = id; currentRatingSelection = 0;
+  renderDetailContent(); showScreen('detailScreen');
 }
 
 function renderDetailContent() {
+  const t = translations[currentLang];
   const c = craftsmen.find(x => x.id === currentDetailId);
   if (!c) return;
   const avatarStyle = c.photo ? `style="background-image:url('${c.photo}')"` : '';
@@ -313,26 +337,26 @@ function renderDetailContent() {
       <span class="chip-prof">${c.profession}</span>
       <div class="location">📍 ${c.city}</div>
     </div>
-    <div class="card"><h3>نبذة</h3><p>${c.bio}</p></div>
+    <div class="card"><h3>${t.bio}</h3><p>${c.bio}</p></div>
     
     <div class="btn-row">
-      <a href="tel:${c.phone}" class="contact-btn">📞 اتصل</a>
-      ${!isMine ? `<button class="chat-open-btn" onclick="openChat('${c.user_id}', '${c.name}')">💬 راسل</button>` : ''}
+      <a href="tel:${c.phone}" class="contact-btn">${t.contact}</a>
+      ${!isMine ? `<button class="chat-open-btn" onclick="openChat('${c.user_id}', '${c.name}')">${t.message}</button>` : ''}
     </div>
 
     <div class="card">
-      <h3>⭐ التقييم</h3>
+      <h3>${t.rating}</h3>
       <p style="text-align:center;font-size:16px;font-weight:700">
-        ${c.rating > 0 ? `${c.rating.toFixed(1)} من 5` : 'مازال ما تقيّمش'}
-        ${c.rating_count > 0 ? `<span style="color:#999;font-weight:400">(${c.rating_count} تقييم)</span>` : ''}
+        ${c.rating > 0 ? `${c.rating.toFixed(1)} / 5` : t.noRating}
+        ${c.rating_count > 0 ? `<span style="color:#999;font-weight:400">(${c.rating_count})</span>` : ''}
       </p>
       ${!isMine ? `
-        <p style="text-align:center;margin-top:16px;font-size:14px">قيّم هاد الحريفي:</p>
+        <p style="text-align:center;margin-top:16px;font-size:14px">${t.rateCraftsman}</p>
         <div class="rate-stars" id="rateStars">
           ${[1,2,3,4,5].map(i => `<span class="star" onclick="selectRating(${i})">☆</span>`).join('')}
         </div>
-        <button class="btn teal-btn" onclick="submitRating()">أرسل التقييم</button>
-      ` : '<p style="text-align:center;color:#999;font-size:13px">ما تقدرش تقيّم راسك 😄</p>'}
+        <button class="btn teal-btn" onclick="submitRating()">${t.sendRating}</button>
+      ` : ''}
     </div>
   `;
   if (currentRatingSelection > 0) selectRating(currentRatingSelection);
@@ -347,7 +371,7 @@ function selectRating(val) {
 }
 
 async function submitRating() {
-  if (currentRatingSelection === 0) { showToast('⚠️ اختار النجوم'); return; }
+  if (currentRatingSelection === 0) return;
   try {
     const c = craftsmen.find(x => x.id === currentDetailId);
     let ratings = c.ratings || [];
@@ -356,23 +380,19 @@ async function submitRating() {
     const newRating = ratings.reduce((a, b) => a + b, 0) / newCount;
 
     await _supabase.from('craftsmen').update({ ratings, rating_count: newCount, rating: newRating }).eq('id', currentDetailId);
-    await loadCraftsmen();
-    renderDetailContent();
-    showToast('✅ شكراً على التقييم!');
-  } catch (e) { console.error(e); showToast('❌ مشكل ف التقييم'); }
+    await loadCraftsmen(); renderDetailContent();
+  } catch (e) { console.error(e); }
 }
 
 // ==================== 7. رفع الصور ====================
 function previewPhoto(e) {
   const file = e.target.files[0];
   if (!file) return;
-  if (file.size > 2 * 1024 * 1024) { showToast('⚠️ الصورة كبيرة (ماكس 2MB)'); return; }
   const reader = new FileReader();
   reader.onload = ev => {
     uploadedPhoto = ev.target.result;
     const img = document.getElementById('avatarPreview');
-    img.src = uploadedPhoto;
-    img.style.display = 'block';
+    img.src = uploadedPhoto; img.style.display = 'block';
     document.getElementById('avatarPlaceholder').style.display = 'none';
   };
   reader.readAsDataURL(file);
@@ -387,147 +407,86 @@ async function uploadPhoto(file, id) {
     if (error) throw error;
     const { data: urlData } = _supabase.storage.from('craftsmen').getPublicUrl(fileName);
     return urlData.publicUrl;
-  } catch (e) { console.error('❌ خطأ ف رفع الصورة:', e); return ''; }
+  } catch (e) { return ''; }
 }
 
 // ==================== 8. الشات ====================
 function openChat(partnerId, partnerName) {
-  if (!partnerId) { showToast('⚠️ هاد الحريفي مازال ما عندو حساب'); return; }
-  currentChatPartnerId = partnerId;
-  chatSource = 'profile'; // جاي من البروفايل
+  if (!partnerId) return;
+  currentChatPartnerId = partnerId; chatSource = 'profile';
   document.getElementById('chatTitle').textContent = partnerName;
   const myId = currentAuthUser.id;
   chatRoomId = [myId, partnerId].sort().join('_');
   showScreen('chatScreen');
-  document.getElementById('chatMessages').innerHTML = '<p style="text-align:center;color:#999;padding:20px;">⏳ تحميل...</p>';
+  document.getElementById('chatMessages').innerHTML = '<p style="text-align:center;color:#999;padding:20px;">⏳...</p>';
   listenToMessages();
 }
 
 async function listenToMessages() {
-  if (chatSubscription) {
-    _supabase.removeChannel(chatSubscription);
-    chatSubscription = null;
-  }
-  
-  // 1. هاد السطر هو اللي كنقص فالصورة ديالك (كنعطيوه شي وقت باش الشاشة تحل)
+  if (chatSubscription) { _supabase.removeChannel(chatSubscription); chatSubscription = null; }
   await new Promise(resolve => setTimeout(resolve, 200));
-
-  // 2. نجيبو الرسائل من قاعدة البيانات
-  const { data, error } = await _supabase
-    .from('messages')
-    .select('*')
-    .eq('room_id', chatRoomId)
-    .order('created_at', { ascending: true });
-    
-  if (error) console.log("خطأ ف جلب الرسائل:", error);
-  
-  // 3. كنعرضوهم
+  const { data } = await _supabase.from('messages').select('*').eq('room_id', chatRoomId).order('created_at', { ascending: true });
   renderMessages(data || []);
 
-  // 4. نستنو أي رسالة جديدة تجي (Realtime)
   chatSubscription = _supabase.channel('any-chat-room')
-    .on(
-      'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'messages' },
-      (payload) => {
-        if (payload.new.room_id === chatRoomId) {
-          appendMessage(payload.new);
-        }
-      }
-    )
-    .subscribe();
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+        if (payload.new.room_id === chatRoomId) appendMessage(payload.new);
+    }).subscribe();
 }
 
 function renderMessages(msgs) {
   const container = document.getElementById('chatMessages');
-  if (msgs.length === 0) { container.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">بدا المحادثة!</p>'; return; }
-  container.innerHTML = '';
+  container.innerHTML = ''; 
+  if (msgs.length === 0) { container.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">...</p>'; return; }
   msgs.forEach(m => appendMessage(m));
 }
 
 function appendMessage(msg) {
   const container = document.getElementById('chatMessages');
-  
-  // حماية من تكرار الرسائل
+  if (container.innerHTML.includes('...')) container.innerHTML = '';
   const msgElements = container.querySelectorAll('.msg');
-  for (let el of msgElements) {
-    if (el.innerHTML.includes(msg.text)) return; 
-  }
-
-  if (container.innerHTML.includes('بدا المحادثة!')) container.innerHTML = '';
-  
+  for (let el of msgElements) { if (el.innerHTML.includes(msg.text)) return; }
   const isMine = msg.sender_uid === currentAuthUser.id;
-  const time = new Date(msg.created_at).toLocaleTimeString('ar-MA', { hour: '2-digit', minute: '2-digit' });
-  
+  const time = new Date(msg.created_at).toLocaleTimeString(currentLang === 'ar' ? 'ar-MA' : 'fr-FR', { hour: '2-digit', minute: '2-digit' });
   const div = document.createElement('div');
   div.className = `msg ${isMine ? 'mine' : 'theirs'}`;
   div.innerHTML = `${msg.text}<div class="msg-time">${time}</div>`;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
+  container.appendChild(div); container.scrollTop = container.scrollHeight;
 }
 
 async function sendMessage() {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
   if (!text) return;
-  
-  // 1. نمسحو الخانة ديريكت
   input.value = ''; 
-  
-  // 2. كنصاوبو رسالة مؤقتة باش تبان ديريكت فالشاشة (Optimistic UI)
-  const tempMessage = {
-    text: text,
-    sender_uid: currentAuthUser.id,
-    created_at: new Date().toISOString()
-  };
+  const tempMessage = { text: text, sender_uid: currentAuthUser.id, created_at: new Date().toISOString() };
   appendMessage(tempMessage); 
-  
-  // 3. كنصيفطوها للسيرفر فـ الخلفية
   const { error } = await _supabase.from('messages').insert({
-    room_id: chatRoomId,
-    sender_uid: currentAuthUser.id,
-    sender_name: currentProfile.name,
-    text: text
+    room_id: chatRoomId, sender_uid: currentAuthUser.id, sender_name: currentProfile.name, text: text
   });
-  
-  // 4. إلا كان مشكل فالسيرفر، كنطلعو تنبيه
-  if (error) {
-    console.error(error);
-    showToast('❌ ما صيفطناش الرسالة: ' + error.message);
-  }
 }
 
 function backFromChat() {
-  if (chatSubscription) {
-    _supabase.removeChannel(chatSubscription);
-    chatSubscription = null;
-  }
-  
-  if (chatSource === 'inbox') {
-    openInbox();
-  } 
+  if (chatSubscription) { _supabase.removeChannel(chatSubscription); chatSubscription = null; }
+  if (chatSource === 'inbox') { openInbox(); } 
   else {
-    if (currentProfile.role === 'craftsman') { 
-      renderMyProfile(); 
-      showScreen('myProfileScreen'); 
-    } else { 
-      showScreen('detailScreen'); 
-    }
+    if (currentProfile.role === 'craftsman') { renderMyProfile(); showScreen('myProfileScreen'); } 
+    else { showScreen('detailScreen'); }
   }
 }
 
-// ==================== 9. صندوق الرسائل (Inbox) ====================
+// ==================== 9. صندوق الرسائل ====================
 async function openInbox() {
+  const t = translations[currentLang];
   showScreen('inboxScreen');
   const container = document.getElementById('inboxList');
-  container.innerHTML = '<p style="text-align:center;color:#999;">⏳ تحميل الرسائل...</p>';
+  container.innerHTML = '<p style="text-align:center;color:#999;">⏳...</p>';
 
   try {
     const myId = currentAuthUser.id;
     const { data, error } = await _supabase.from('messages').select('*').or(`room_id.like.%${myId}%`).order('created_at', { ascending: false });
-
     if (error) throw error;
-    if (!data || data.length === 0) { container.innerHTML = '<p style="text-align:center;color:#999;margin-top:30px;">مازال ما عندك حتى رسالة 📭</p>'; return; }
+    if (!data || data.length === 0) { container.innerHTML = '<p style="text-align:center;color:#999;">📭</p>'; return; }
 
     const chats = {};
     data.forEach(msg => { if (!chats[msg.room_id]) chats[msg.room_id] = msg; });
@@ -539,13 +498,12 @@ async function openInbox() {
       const ids = roomId.split('_');
       const partnerId = ids.find(id => id !== myId);
       
-      let partnerName = 'مستخدم';
+      let partnerName = 'User';
       if (currentProfile.role === 'craftsman') {
-         partnerName = !isMine ? lastMsg.sender_name : 'مستهلك';
-         if (isMine) partnerName = 'مستهلك';
+         partnerName = !isMine ? lastMsg.sender_name : t.consumerName;
       } else {
          const craftsman = craftsmen.find(c => c.user_id === partnerId);
-         partnerName = craftsman ? craftsman.name : 'حريفي';
+         partnerName = craftsman ? craftsman.name : 'Artisan';
       }
       const partnerLetter = partnerName.charAt(0);
 
@@ -554,30 +512,67 @@ async function openInbox() {
           <div class="inbox-avatar">${partnerLetter}</div>
           <div class="inbox-info">
             <h4>${partnerName}</h4>
-            <p>${isMine ? 'أنت: ' : ''}${lastMsg.text}</p>
+            <p>${isMine ? t.you : ''}${lastMsg.text}</p>
           </div>
         </div>
       `;
     }
     container.innerHTML = html;
-  } catch (e) { 
-    console.error(e); 
-    container.innerHTML = '<p style="text-align:center;color:red;">مشكل ف تحميل الرسائل</p>'; 
-  }
+  } catch (e) { container.innerHTML = '<p style="text-align:center;color:red;">Error</p>'; }
 }
 
 function openChatFromInbox(roomId, partnerId, partnerName) {
-  currentChatPartnerId = partnerId;
-  chatRoomId = roomId;
-  chatSource = 'inbox'; // جاي من صندوق الرسائل
+  currentChatPartnerId = partnerId; chatRoomId = roomId; chatSource = 'inbox';
   document.getElementById('chatTitle').textContent = partnerName;
   showScreen('chatScreen');
-  document.getElementById('chatMessages').innerHTML = '<p style="text-align:center;color:#999;padding:20px;">⏳ تحميل...</p>';
+  document.getElementById('chatMessages').innerHTML = '<p style="text-align:center;color:#999;padding:20px;">⏳...</p>';
   listenToMessages();
 }
 
 function backFromInbox() {
   if (currentProfile.role === 'craftsman') { renderMyProfile(); showScreen('myProfileScreen'); } else { showScreen('listScreen'); }
+}
+
+// ==================== 10. نظام اللغات ====================
+function toggleLanguage() {
+  if (currentLang === 'ar') currentLang = 'fr';
+  else if (currentLang === 'fr') currentLang = 'en';
+  else currentLang = 'ar';
+  localStorage.setItem('appLang', currentLang);
+  updateLanguageUI();
+}
+
+function updateLanguageUI() {
+  const t = translations[currentLang];
+  
+  // اتجاه الصفحة
+  document.getElementById('htmlRoot').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('htmlRoot').lang = currentLang;
+
+  // تحديث أزرار اللغة
+  const nextLang = currentLang === 'ar' ? 'FR' : (currentLang === 'fr' ? 'EN' : 'AR');
+  document.querySelectorAll('#langBtn, #langBtn2, #langBtn3, #langBtnAuth').forEach(btn => { if(btn) btn.textContent = `🌐 ${nextLang}`; });
+
+  // تحديث النصوص (data-i18n)
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) el.textContent = t[key];
+  });
+
+  // تحديث الـ Placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (t[key]) el.placeholder = t[key];
+  });
+
+  // تحديث الـ Title
+  document.title = t.appName + " - " + t.tagline;
+
+  // إعادة رسم الصفحات النشطة
+  if (document.getElementById('listScreen').classList.contains('active')) renderCraftsmen();
+  if (document.getElementById('detailScreen').classList.contains('active')) renderDetailContent();
+  if (document.getElementById('myProfileScreen').classList.contains('active')) renderMyProfile();
+  if (document.getElementById('inboxScreen').classList.contains('active')) openInbox();
 }
 
 // ==================== تنبيه ====================
