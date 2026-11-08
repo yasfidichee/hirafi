@@ -275,19 +275,21 @@ async function loadCraftsmen() {
 }
 
 function renderCityChips() {
-  const t = translations[currentLang];
-  // كنعوضو "الكل" بالترجمة ديالها
-  const allCitiesText = currentLang === 'ar' ? 'الكل' : (currentLang === 'fr' ? 'Tout' : 'All');
+  // كنعوضو "الكل" بالترجمة ديالها حسب اللغة الحالية
+  const allText = currentLang === 'ar' ? 'الكل' : (currentLang === 'fr' ? 'Tout' : 'All');
   
-  // كنجيبو المدن من الداتا، وكنعوضو "الكل" بالترجمة
+  // كنجيبو المدن من قاعدة البيانات
   let cities = [...new Set(craftsmen.map(c => c.city))];
   
-  document.getElementById('cityChips').innerHTML = `
-    <button class="chip ${selectedCity === 'الكل' ? 'active' : ''}" onclick="selectCity('الكل')">${allCitiesText}</button>
-    ${cities.map(city =>
-      `<button class="chip ${city === selectedCity ? 'active' : ''}" onclick="selectCity('${city}')">${city}</button>`
-    ).join('')}
-  `;
+  // كنحضرو الـ HTML
+  let html = `<button class="chip ${selectedCity === 'الكل' ? 'active' : ''}" onclick="selectCity('الكل')">${allText}</button>`;
+  
+  // كنزيدو المدن
+  cities.forEach(city => {
+    html += `<button class="chip ${city === selectedCity ? 'active' : ''}" onclick="selectCity('${city}')">${city}</button>`;
+  });
+
+  document.getElementById('cityChips').innerHTML = html;
 }
 
 function selectCity(city) { selectedCity = city; renderCityChips(); renderCraftsmen(); }
