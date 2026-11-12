@@ -133,7 +133,6 @@ html[dir="ltr"] .screen {
   text-align: left;
 }
 
-/* باش نصلحو الشات فقط */
 html[dir="ltr"] .msg.mine {
   align-self: flex-end;
   border-bottom-left-radius: 4px;
